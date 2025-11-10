@@ -33,8 +33,8 @@ func GetCards(w http.ResponseWriter, r *http.Request) {
 	}
 
 	query := `
-		SELECT id, name, last_four, statement_day, due_day,
-		       credit_limit, discord_webhook_url, created_at, updated_at
+		SELECT id, name, last_four, statement_day, days_until_due,
+		       credit_limit, created_at, updated_at
 		FROM credit_cards
 		ORDER BY name
 	`
@@ -51,16 +51,14 @@ func GetCards(w http.ResponseWriter, r *http.Request) {
 	for rows.Next() {
 		var card models.CreditCard
 		var creditLimit sql.NullFloat64
-		var webhookURL sql.NullString
 
 		err := rows.Scan(
 			&card.ID,
 			&card.Name,
 			&card.LastFour,
 			&card.StatementDay,
-			&card.DueDay,
+			&card.DaysUntilDue,
 			&creditLimit,
-			&webhookURL,
 			&card.CreatedAt,
 			&card.UpdatedAt,
 		)
@@ -72,9 +70,6 @@ func GetCards(w http.ResponseWriter, r *http.Request) {
 		// Handle NULL values
 		if creditLimit.Valid {
 			card.CreditLimit = creditLimit.Float64
-		}
-		if webhookURL.Valid {
-			card.DiscordWebhookURL = webhookURL.String
 		}
 
 		cards = append(cards, card)
@@ -157,24 +152,22 @@ func GetCardByID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	query := `
-		SELECT id, name, last_four, statement_day, due_day,
-		       credit_limit, discord_webhook_url, created_at, updated_at
+		SELECT id, name, last_four, statement_day, days_until_due,
+		       credit_limit, created_at, updated_at
 		FROM credit_cards
 		WHERE id = ?
 	`
 
 	var card models.CreditCard
 	var creditLimit sql.NullFloat64
-	var webhookURL sql.NullString
 
 	err = database.DB.QueryRow(query, id).Scan(
 		&card.ID,
 		&card.Name,
 		&card.LastFour,
 		&card.StatementDay,
-		&card.DueDay,
+		&card.DaysUntilDue,
 		&creditLimit,
-		&webhookURL,
 		&card.CreatedAt,
 		&card.UpdatedAt,
 	)
@@ -187,9 +180,6 @@ func GetCardByID(w http.ResponseWriter, r *http.Request) {
 	// Handle NULL values
 	if creditLimit.Valid {
 		card.CreditLimit = creditLimit.Float64
-	}
-	if webhookURL.Valid {
-		card.DiscordWebhookURL = webhookURL.String
 	}
 
 	w.Header().Set("Content-Type", "application/json")

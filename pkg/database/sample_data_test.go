@@ -36,14 +36,14 @@ func TestLoadSampleData(t *testing.T) {
 
 	// Verify TD Aeroplan Visa card details
 	var name, lastFour string
-	var statementDay, dueDay int
+	var statementDay, daysUntilDue int
 	var creditLimit float64
 
 	err = DB.QueryRow(`
-		SELECT name, last_four, statement_day, due_day, credit_limit
+		SELECT name, last_four, statement_day, days_until_due, credit_limit
 		FROM credit_cards
 		WHERE name = 'TD Aeroplan Visa'
-	`).Scan(&name, &lastFour, &statementDay, &dueDay, &creditLimit)
+	`).Scan(&name, &lastFour, &statementDay, &daysUntilDue, &creditLimit)
 
 	if err != nil {
 		t.Fatalf("Failed to query TD Aeroplan Visa: %v", err)
@@ -55,8 +55,8 @@ func TestLoadSampleData(t *testing.T) {
 	if statementDay != 15 {
 		t.Errorf("Expected statement_day 15, got %d", statementDay)
 	}
-	if dueDay != 10 {
-		t.Errorf("Expected due_day 10, got %d", dueDay)
+	if daysUntilDue != 25 {
+		t.Errorf("Expected days_until_due 25, got %d", daysUntilDue)
 	}
 	if creditLimit != 5000.00 {
 		t.Errorf("Expected credit_limit 5000.00, got %.2f", creditLimit)
@@ -64,10 +64,10 @@ func TestLoadSampleData(t *testing.T) {
 
 	// Verify Amex Cobalt card details
 	err = DB.QueryRow(`
-		SELECT name, last_four, statement_day, due_day, credit_limit
+		SELECT name, last_four, statement_day, days_until_due, credit_limit
 		FROM credit_cards
 		WHERE name = 'Amex Cobalt'
-	`).Scan(&name, &lastFour, &statementDay, &dueDay, &creditLimit)
+	`).Scan(&name, &lastFour, &statementDay, &daysUntilDue, &creditLimit)
 
 	if err != nil {
 		t.Fatalf("Failed to query Amex Cobalt: %v", err)
@@ -79,8 +79,8 @@ func TestLoadSampleData(t *testing.T) {
 	if statementDay != 28 {
 		t.Errorf("Expected statement_day 28, got %d", statementDay)
 	}
-	if dueDay != 23 {
-		t.Errorf("Expected due_day 23, got %d", dueDay)
+	if daysUntilDue != 25 {
+		t.Errorf("Expected days_until_due 25, got %d", daysUntilDue)
 	}
 	if creditLimit != 10000.00 {
 		t.Errorf("Expected credit_limit 10000.00, got %.2f", creditLimit)

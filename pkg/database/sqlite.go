@@ -53,9 +53,8 @@ func createTables() error {
 		name TEXT NOT NULL,
 		last_four TEXT NOT NULL,
 		statement_day INTEGER NOT NULL,
-		due_day INTEGER NOT NULL,
+		days_until_due INTEGER NOT NULL,
 		credit_limit REAL,
-		discord_webhook_url TEXT,
 		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 	);

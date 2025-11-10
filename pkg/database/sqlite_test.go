@@ -102,15 +102,14 @@ func TestDatabaseSchema(t *testing.T) {
 	defer rows.Close()
 
 	expectedColumns := map[string]bool{
-		"id":                  false,
-		"name":                false,
-		"last_four":           false,
-		"statement_day":       false,
-		"due_day":             false,
-		"credit_limit":        false,
-		"discord_webhook_url": false,
-		"created_at":          false,
-		"updated_at":          false,
+		"id":             false,
+		"name":           false,
+		"last_four":      false,
+		"statement_day":  false,
+		"days_until_due": false,
+		"credit_limit":   false,
+		"created_at":     false,
+		"updated_at":     false,
 	}
 
 	for rows.Next() {

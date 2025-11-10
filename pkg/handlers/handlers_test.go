@@ -65,8 +65,8 @@ func TestGetCards(t *testing.T) {
 
 	// Insert test data
 	_, err := database.DB.Exec(`
-		INSERT INTO credit_cards (name, last_four, statement_day, due_day, credit_limit)
-		VALUES ('Test Card', '1234', 15, 10, 5000.00)
+		INSERT INTO credit_cards (name, last_four, statement_day, days_until_due, credit_limit)
+		VALUES ('Test Card', '1234', 15, 25, 5000.00)
 	`)
 	if err != nil {
 		t.Fatalf("Failed to insert test data: %v", err)
@@ -122,8 +122,8 @@ func TestGetStatements(t *testing.T) {
 
 	// Insert test card
 	result, err := database.DB.Exec(`
-		INSERT INTO credit_cards (name, last_four, statement_day, due_day)
-		VALUES ('Test Card', '1234', 15, 10)
+		INSERT INTO credit_cards (name, last_four, statement_day, days_until_due)
+		VALUES ('Test Card', '1234', 15, 25)
 	`)
 	if err != nil {
 		t.Fatalf("Failed to insert test card: %v", err)
@@ -173,8 +173,8 @@ func TestGetCardByID(t *testing.T) {
 
 	// Insert test data
 	result, err := database.DB.Exec(`
-		INSERT INTO credit_cards (name, last_four, statement_day, due_day, credit_limit)
-		VALUES ('Test Card', '5678', 20, 15, 3000.00)
+		INSERT INTO credit_cards (name, last_four, statement_day, days_until_due, credit_limit)
+		VALUES ('Test Card', '5678', 20, 25, 3000.00)
 	`)
 	if err != nil {
 		t.Fatalf("Failed to insert test data: %v", err)
@@ -249,8 +249,8 @@ func TestCreateStatement(t *testing.T) {
 
 	// Insert test card
 	result, err := database.DB.Exec(`
-		INSERT INTO credit_cards (name, last_four, statement_day, due_day)
-		VALUES ('Test Card', '1234', 15, 10)
+		INSERT INTO credit_cards (name, last_four, statement_day, days_until_due)
+		VALUES ('Test Card', '1234', 15, 25)
 	`)
 	if err != nil {
 		t.Fatalf("Failed to insert test card: %v", err)
@@ -378,8 +378,8 @@ func TestUpdateStatement(t *testing.T) {
 
 	// Insert test card and statement
 	result, err := database.DB.Exec(`
-		INSERT INTO credit_cards (name, last_four, statement_day, due_day)
-		VALUES ('Test Card', '1234', 15, 10)
+		INSERT INTO credit_cards (name, last_four, statement_day, days_until_due)
+		VALUES ('Test Card', '1234', 15, 25)
 	`)
 	if err != nil {
 		t.Fatalf("Failed to insert test card: %v", err)
