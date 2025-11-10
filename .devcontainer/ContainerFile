@@ -1,0 +1,14 @@
+FROM registry.access.redhat.com/ubi10:10.0
+
+# Add GitHub CLI repository
+RUN curl -fsSL https://cli.github.com/packages/rpm/gh-cli.repo | tee /etc/yum.repos.d/gh-cli.repo
+
+# Install all packages
+RUN dnf update -y && dnf install -y \
+    golang-go \
+    nodejs \
+    npm \
+    gh
+
+# Install Claude CLI
+RUN curl -fsSL https://claude.ai/install.sh | bash
