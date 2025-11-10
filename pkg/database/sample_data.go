@@ -32,9 +32,9 @@ func LoadSampleData(db *sql.DB) error {
 
 	// Sample Card 1: TD Aeroplan Visa
 	result, err := tx.Exec(`
-		INSERT INTO credit_cards (name, last_four, statement_day, due_day, credit_limit, created_at, updated_at)
+		INSERT INTO credit_cards (name, last_four, statement_day, days_until_due, credit_limit, created_at, updated_at)
 		VALUES (?, ?, ?, ?, ?, ?, ?)
-	`, "TD Aeroplan Visa", "9876", 15, 10, 5000.00, time.Now(), time.Now())
+	`, "TD Aeroplan Visa", "9876", 15, 25, 5000.00, time.Now(), time.Now())
 	if err != nil {
 		return fmt.Errorf("failed to insert TD Aeroplan Visa: %w", err)
 	}
@@ -45,9 +45,9 @@ func LoadSampleData(db *sql.DB) error {
 
 	// Sample Card 2: Amex Cobalt
 	result, err = tx.Exec(`
-		INSERT INTO credit_cards (name, last_four, statement_day, due_day, credit_limit, created_at, updated_at)
+		INSERT INTO credit_cards (name, last_four, statement_day, days_until_due, credit_limit, created_at, updated_at)
 		VALUES (?, ?, ?, ?, ?, ?, ?)
-	`, "Amex Cobalt", "1234", 28, 23, 10000.00, time.Now(), time.Now())
+	`, "Amex Cobalt", "1234", 28, 25, 10000.00, time.Now(), time.Now())
 	if err != nil {
 		return fmt.Errorf("failed to insert Amex Cobalt: %w", err)
 	}

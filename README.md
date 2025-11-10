@@ -182,9 +182,8 @@ The server will start on `http://localhost:8080` by default.
 - name (TEXT)
 - last_four (TEXT)
 - statement_day (INTEGER)
-- due_day (INTEGER)
+- days_until_due (INTEGER)
 - credit_limit (REAL)
-- discord_webhook_url (TEXT)
 - created_at (DATETIME)
 - updated_at (DATETIME)
 

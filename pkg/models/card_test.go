@@ -12,7 +12,7 @@ func TestCreditCardJSONMarshaling(t *testing.T) {
 		Name:         "Test Visa",
 		LastFour:     "1234",
 		StatementDay: 15,
-		DueDay:       10,
+		DaysUntilDue: 25,
 		CreditLimit:  5000.00,
 		CreatedAt:    time.Now(),
 		UpdatedAt:    time.Now(),
@@ -48,8 +48,8 @@ func TestCreditCardJSONMarshaling(t *testing.T) {
 		t.Errorf("Expected statement_day %d, got %d", card.StatementDay, unmarshaled.StatementDay)
 	}
 
-	if unmarshaled.DueDay != card.DueDay {
-		t.Errorf("Expected due_day %d, got %d", card.DueDay, unmarshaled.DueDay)
+	if unmarshaled.DaysUntilDue != card.DaysUntilDue {
+		t.Errorf("Expected days_until_due %d, got %d", card.DaysUntilDue, unmarshaled.DaysUntilDue)
 	}
 
 	if unmarshaled.CreditLimit != card.CreditLimit {
@@ -63,7 +63,7 @@ func TestCreditCardJSONTags(t *testing.T) {
 		Name:         "Test Card",
 		LastFour:     "5678",
 		StatementDay: 20,
-		DueDay:       15,
+		DaysUntilDue: 25,
 		CreatedAt:    time.Now(),
 		UpdatedAt:    time.Now(),
 	}
@@ -86,7 +86,7 @@ func TestCreditCardJSONTags(t *testing.T) {
 		"name",
 		"last_four",
 		"statement_day",
-		"due_day",
+		"days_until_due",
 		"created_at",
 		"updated_at",
 	}
@@ -105,7 +105,7 @@ func TestCreditCardOmitEmpty(t *testing.T) {
 		Name:         "Test Card",
 		LastFour:     "9999",
 		StatementDay: 25,
-		DueDay:       20,
+		DaysUntilDue: 20,
 		CreatedAt:    time.Now(),
 		UpdatedAt:    time.Now(),
 	}
@@ -125,24 +125,18 @@ func TestCreditCardOmitEmpty(t *testing.T) {
 	if _, exists := result["credit_limit"]; exists {
 		t.Error("Expected credit_limit to be omitted when zero")
 	}
-
-	// DiscordWebhookURL should be omitted when empty
-	if _, exists := result["discord_webhook_url"]; exists {
-		t.Error("Expected discord_webhook_url to be omitted when empty")
-	}
 }
 
 func TestCreditCardWithOptionalFields(t *testing.T) {
 	card := CreditCard{
-		ID:                1,
-		Name:              "Premium Card",
-		LastFour:          "8888",
-		StatementDay:      1,
-		DueDay:            25,
-		CreditLimit:       15000.00,
-		DiscordWebhookURL: "https://discord.com/api/webhooks/123/abc",
-		CreatedAt:         time.Now(),
-		UpdatedAt:         time.Now(),
+		ID:           1,
+		Name:         "Premium Card",
+		LastFour:     "8888",
+		StatementDay: 1,
+		DaysUntilDue: 25,
+		CreditLimit:  15000.00,
+		CreatedAt:    time.Now(),
+		UpdatedAt:    time.Now(),
 	}
 
 	data, err := json.Marshal(card)
@@ -160,10 +154,6 @@ func TestCreditCardWithOptionalFields(t *testing.T) {
 	if _, exists := result["credit_limit"]; !exists {
 		t.Error("Expected credit_limit to be present")
 	}
-
-	if _, exists := result["discord_webhook_url"]; !exists {
-		t.Error("Expected discord_webhook_url to be present")
-	}
 }
 
 func TestCreditCardUnmarshalPartial(t *testing.T) {
@@ -172,7 +162,7 @@ func TestCreditCardUnmarshalPartial(t *testing.T) {
 		"name": "Partial Card",
 		"last_four": "7777",
 		"statement_day": 10,
-		"due_day": 5
+		"days_until_due": 25
 	}`
 
 	var card CreditCard
@@ -197,16 +187,12 @@ func TestCreditCardUnmarshalPartial(t *testing.T) {
 		t.Errorf("Expected statement_day 10, got %d", card.StatementDay)
 	}
 
-	if card.DueDay != 5 {
-		t.Errorf("Expected due_day 5, got %d", card.DueDay)
+	if card.DaysUntilDue != 25 {
+		t.Errorf("Expected days_until_due 25, got %d", card.DaysUntilDue)
 	}
 
 	// Optional fields should have zero values
 	if card.CreditLimit != 0 {
 		t.Errorf("Expected credit_limit 0, got %.2f", card.CreditLimit)
-	}
-
-	if card.DiscordWebhookURL != "" {
-		t.Errorf("Expected empty discord_webhook_url, got '%s'", card.DiscordWebhookURL)
 	}
 }
