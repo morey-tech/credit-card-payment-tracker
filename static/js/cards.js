@@ -320,20 +320,20 @@ function validateCardForm() {
         isValid = false;
     }
 
-    // Validate statement date
+    // Validate last statement date
     const statementDate = document.getElementById('statement-date-input').value;
     if (!statementDate) {
-        showFieldError('statement-date-error', 'Statement date is required');
+        showFieldError('statement-date-error', 'Last statement date is required');
         isValid = false;
     }
 
-    // Validate due date
+    // Validate last due date
     const dueDate = document.getElementById('due-date-input').value;
     if (!dueDate) {
-        showFieldError('due-date-error', 'Due date is required');
+        showFieldError('due-date-error', 'Last due date is required');
         isValid = false;
     } else if (statementDate && new Date(dueDate) <= new Date(statementDate)) {
-        showFieldError('due-date-error', 'Due date must be after statement date');
+        showFieldError('due-date-error', 'Last due date must be after last statement date');
         isValid = false;
     }
 
