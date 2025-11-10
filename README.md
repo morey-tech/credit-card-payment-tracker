@@ -105,3 +105,99 @@ The following user stories are ordered to reflect a staged development approach,
 * **Notifications:** Discord Webhooks for simple and effective alerts.
 
 ---
+
+## Getting Started
+
+### Prerequisites
+
+- Go 1.21 or higher
+- SQLite3 (included with the Go driver)
+
+### Installation
+
+1. Clone the repository:
+```bash
+git clone https://github.com/morey-tech/credit-card-payment-tracker.git
+cd credit-card-payment-tracker
+```
+
+2. Install dependencies:
+```bash
+go mod download
+```
+
+3. (Optional) Configure environment variables:
+```bash
+cp .env.example .env
+# Edit .env to customize PORT and DATABASE_PATH
+```
+
+### Running the Server
+
+**Build and run:**
+```bash
+go build -o server cmd/server/main.go
+./server
+```
+
+**Or run directly:**
+```bash
+go run cmd/server/main.go
+```
+
+The server will start on `http://localhost:8080` by default.
+
+### API Endpoints
+
+- `GET /api/health` - Health check endpoint
+- `GET /api/v1/cards` - List all credit cards
+- `GET /api/v1/statements` - List all statements
+
+### Project Structure
+
+```
+.
+├── cmd/
+│   └── server/
+│       └── main.go              # Application entry point
+├── pkg/
+│   ├── database/
+│   │   └── sqlite.go            # Database setup and migrations
+│   ├── handlers/
+│   │   └── handlers.go          # HTTP handlers
+│   └── models/
+│       ├── card.go              # Credit card model
+│       └── statement.go         # Statement model
+├── static/                      # Static files (frontend)
+├── .env.example                 # Environment variable template
+├── .gitignore                   # Git ignore patterns
+├── go.mod                       # Go module definition
+└── README.md                    # This file
+```
+
+### Database Schema
+
+**credit_cards table:**
+- id (INTEGER PRIMARY KEY)
+- name (TEXT)
+- last_four (TEXT)
+- statement_day (INTEGER)
+- due_day (INTEGER)
+- credit_limit (REAL)
+- discord_webhook_url (TEXT)
+- created_at (DATETIME)
+- updated_at (DATETIME)
+
+**statements table:**
+- id (INTEGER PRIMARY KEY)
+- card_id (INTEGER FOREIGN KEY)
+- statement_date (TEXT)
+- due_date (TEXT)
+- amount (REAL)
+- status (TEXT)
+- notified_statement (BOOLEAN)
+- notified_payment (BOOLEAN)
+- created_at (DATETIME)
+- updated_at (DATETIME)
+
+---
