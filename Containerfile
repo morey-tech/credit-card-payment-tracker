@@ -37,6 +37,10 @@ USER 1000
 # Copy the binary from builder
 COPY --from=builder /app/server .
 
+# Set environment variable to load sample data for dev builds
+ARG VERSION=dev
+ENV LOAD_SAMPLE_DATA=${VERSION:+true}
+
 # Expose port 8080
 EXPOSE 8080
 

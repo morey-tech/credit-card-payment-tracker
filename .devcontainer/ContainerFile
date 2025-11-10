@@ -5,6 +5,7 @@ RUN curl -fsSL https://cli.github.com/packages/rpm/gh-cli.repo | tee /etc/yum.re
 
 # Install all packages
 RUN dnf update -y && dnf install -y \
+    procps-ng \
     golang-go \
     nodejs \
     npm \
