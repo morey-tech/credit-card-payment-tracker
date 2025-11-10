@@ -166,7 +166,7 @@ function renderActionRequired(cards, statements) {
             div.id = `action-card-${card.id}`;
             div.innerHTML = `
                 <span class="font-medium">${card.name}</span>
-                <button onclick="openModal(${card.id}, '${card.name}')" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 px-4 rounded-lg transition-colors">
+                <button onclick="openModal(${card.id}, '${card.name}')" class="btn btn-primary btn-sm">
                     Enter Statement Data
                 </button>
             `;
