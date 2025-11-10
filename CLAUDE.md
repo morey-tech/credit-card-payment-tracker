@@ -3,6 +3,8 @@
 ## Git Workflow
 
 - **Always create a new feature branch before making any code changes**
+- Create a feature branch.
+- Check if on `main` branch and create a feature branch.
 - Never commit directly to `main` branch
 - Branch naming: use descriptive names (e.g., `feature/score-calculator`, `fix/round-goals-bug`)
 
