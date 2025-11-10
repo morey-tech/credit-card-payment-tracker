@@ -47,9 +47,18 @@ func main() {
 	})
 	mux.HandleFunc("/api/v1/statements/", handlers.UpdateStatement)
 
-	// Serve static files
+	// Serve static files at /static/ path
 	fs := http.FileServer(http.Dir("./static"))
-	mux.Handle("/", fs)
+	mux.Handle("/static/", http.StripPrefix("/static", fs))
+
+	// Serve index.html at root
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/" {
+			http.ServeFile(w, r, "./static/index.html")
+		} else {
+			http.NotFound(w, r)
+		}
+	})
 
 	// Create HTTP server
 	server := &http.Server{
