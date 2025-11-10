@@ -55,8 +55,25 @@ func main() {
 
 	// API routes
 	mux.HandleFunc("/api/health", handlers.HealthCheck)
-	mux.HandleFunc("/api/v1/cards", handlers.GetCards)
-	mux.HandleFunc("/api/v1/cards/", handlers.GetCardByID)
+	mux.HandleFunc("/api/v1/cards", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodPost {
+			handlers.CreateCard(w, r)
+		} else {
+			handlers.GetCards(w, r)
+		}
+	})
+	mux.HandleFunc("/api/v1/cards/", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodGet:
+			handlers.GetCardByID(w, r)
+		case http.MethodPut:
+			handlers.UpdateCard(w, r)
+		case http.MethodDelete:
+			handlers.DeleteCard(w, r)
+		default:
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		}
+	})
 	mux.HandleFunc("/api/v1/statements", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPost {
 			handlers.CreateStatement(w, r)
@@ -65,6 +82,13 @@ func main() {
 		}
 	})
 	mux.HandleFunc("/api/v1/statements/", handlers.UpdateStatement)
+	mux.HandleFunc("/api/settings", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodPut {
+			handlers.UpdateSettings(w, r)
+		} else {
+			handlers.GetSettings(w, r)
+		}
+	})
 
 	// Serve static files at /static/ path
 	fs := http.FileServer(http.Dir("./static"))

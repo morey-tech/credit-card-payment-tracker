@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/morey-tech/credit-card-payment-tracker/pkg/config"
 	"github.com/morey-tech/credit-card-payment-tracker/pkg/database"
 	"github.com/morey-tech/credit-card-payment-tracker/pkg/models"
 )
@@ -313,4 +314,411 @@ func UpdateStatement(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{"status": "updated"})
+}
+
+// CreateCardRequest represents the request body for creating a credit card
+type CreateCardRequest struct {
+	Name          string  `json:"name"`
+	LastFour      string  `json:"last_four"`
+	StatementDate string  `json:"statement_date"`
+	DueDate       string  `json:"due_date"`
+	CreditLimit   float64 `json:"credit_limit,omitempty"`
+}
+
+// CreateCard creates a new credit card
+func CreateCard(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var req CreateCardRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		log.Printf("Error decoding card: %v", err)
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	// Validate required fields
+	if req.Name == "" {
+		http.Error(w, "name is required", http.StatusBadRequest)
+		return
+	}
+	if len(req.Name) < 2 || len(req.Name) > 255 {
+		http.Error(w, "name must be between 2 and 255 characters", http.StatusBadRequest)
+		return
+	}
+	if req.LastFour == "" {
+		http.Error(w, "last_four is required", http.StatusBadRequest)
+		return
+	}
+	if len(req.LastFour) != 4 {
+		http.Error(w, "last_four must be exactly 4 digits", http.StatusBadRequest)
+		return
+	}
+	// Validate that last_four is numeric
+	if _, err := strconv.Atoi(req.LastFour); err != nil {
+		http.Error(w, "last_four must be numeric", http.StatusBadRequest)
+		return
+	}
+	if req.StatementDate == "" {
+		http.Error(w, "statement_date is required", http.StatusBadRequest)
+		return
+	}
+	if req.DueDate == "" {
+		http.Error(w, "due_date is required", http.StatusBadRequest)
+		return
+	}
+	if req.CreditLimit < 0 {
+		http.Error(w, "credit_limit must be positive", http.StatusBadRequest)
+		return
+	}
+
+	// Parse and validate dates
+	statementDate, err := time.Parse("2006-01-02", req.StatementDate)
+	if err != nil {
+		http.Error(w, "statement_date must be a valid date (YYYY-MM-DD)", http.StatusBadRequest)
+		return
+	}
+	dueDate, err := time.Parse("2006-01-02", req.DueDate)
+	if err != nil {
+		http.Error(w, "due_date must be a valid date (YYYY-MM-DD)", http.StatusBadRequest)
+		return
+	}
+
+	// Validate that due_date is after statement_date
+	if !dueDate.After(statementDate) {
+		http.Error(w, "due_date must be after statement_date", http.StatusBadRequest)
+		return
+	}
+
+	// Calculate statement_day and days_until_due
+	statementDay := statementDate.Day()
+	daysUntilDue := int(dueDate.Sub(statementDate).Hours() / 24)
+
+	// Set timestamps
+	now := time.Now()
+
+	// Insert into database
+	query := `
+		INSERT INTO credit_cards (name, last_four, statement_day, days_until_due, credit_limit, created_at, updated_at)
+		VALUES (?, ?, ?, ?, ?, ?, ?)
+	`
+
+	var result sql.Result
+	if req.CreditLimit > 0 {
+		result, err = database.DB.Exec(query, req.Name, req.LastFour, statementDay, daysUntilDue, req.CreditLimit, now, now)
+	} else {
+		result, err = database.DB.Exec(query, req.Name, req.LastFour, statementDay, daysUntilDue, nil, now, now)
+	}
+	if err != nil {
+		log.Printf("Error creating card: %v", err)
+		http.Error(w, "Failed to create card", http.StatusInternalServerError)
+		return
+	}
+
+	id, err := result.LastInsertId()
+	if err != nil {
+		log.Printf("Error getting last insert ID: %v", err)
+		http.Error(w, "Failed to create card", http.StatusInternalServerError)
+		return
+	}
+
+	// Return created card
+	card := models.CreditCard{
+		ID:           int(id),
+		Name:         req.Name,
+		LastFour:     req.LastFour,
+		StatementDay: statementDay,
+		DaysUntilDue: daysUntilDue,
+		CreditLimit:  req.CreditLimit,
+		CreatedAt:    now,
+		UpdatedAt:    now,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(card)
+}
+
+// UpdateCard updates an existing credit card
+func UpdateCard(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPut {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Extract ID from URL path (e.g., /api/v1/cards/1)
+	pathParts := strings.Split(r.URL.Path, "/")
+	if len(pathParts) < 5 {
+		http.Error(w, "Invalid URL", http.StatusBadRequest)
+		return
+	}
+
+	idStr := pathParts[4]
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "Invalid card ID", http.StatusBadRequest)
+		return
+	}
+
+	// Check if card exists
+	var exists int
+	err = database.DB.QueryRow("SELECT 1 FROM credit_cards WHERE id = ?", id).Scan(&exists)
+	if err == sql.ErrNoRows {
+		http.Error(w, "Card not found", http.StatusNotFound)
+		return
+	}
+	if err != nil {
+		log.Printf("Error checking card existence: %v", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	var req CreateCardRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		log.Printf("Error decoding card: %v", err)
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	// Validate fields if provided
+	if req.Name != "" && (len(req.Name) < 2 || len(req.Name) > 255) {
+		http.Error(w, "name must be between 2 and 255 characters", http.StatusBadRequest)
+		return
+	}
+	if req.LastFour != "" && len(req.LastFour) != 4 {
+		http.Error(w, "last_four must be exactly 4 digits", http.StatusBadRequest)
+		return
+	}
+	if req.LastFour != "" {
+		if _, err := strconv.Atoi(req.LastFour); err != nil {
+			http.Error(w, "last_four must be numeric", http.StatusBadRequest)
+			return
+		}
+	}
+	if req.CreditLimit < 0 {
+		http.Error(w, "credit_limit must be positive", http.StatusBadRequest)
+		return
+	}
+
+	// Build update query dynamically based on provided fields
+	updates := []string{}
+	args := []interface{}{}
+	hasUpdates := false
+
+	if req.Name != "" {
+		updates = append(updates, "name = ?")
+		args = append(args, req.Name)
+		hasUpdates = true
+	}
+	if req.LastFour != "" {
+		updates = append(updates, "last_four = ?")
+		args = append(args, req.LastFour)
+		hasUpdates = true
+	}
+
+	// Handle date updates
+	if req.StatementDate != "" && req.DueDate != "" {
+		statementDate, err := time.Parse("2006-01-02", req.StatementDate)
+		if err != nil {
+			http.Error(w, "statement_date must be a valid date (YYYY-MM-DD)", http.StatusBadRequest)
+			return
+		}
+		dueDate, err := time.Parse("2006-01-02", req.DueDate)
+		if err != nil {
+			http.Error(w, "due_date must be a valid date (YYYY-MM-DD)", http.StatusBadRequest)
+			return
+		}
+
+		if !dueDate.After(statementDate) {
+			http.Error(w, "due_date must be after statement_date", http.StatusBadRequest)
+			return
+		}
+
+		statementDay := statementDate.Day()
+		daysUntilDue := int(dueDate.Sub(statementDate).Hours() / 24)
+
+		updates = append(updates, "statement_day = ?", "days_until_due = ?")
+		args = append(args, statementDay, daysUntilDue)
+		hasUpdates = true
+	} else if req.StatementDate != "" || req.DueDate != "" {
+		http.Error(w, "both statement_date and due_date must be provided together", http.StatusBadRequest)
+		return
+	}
+
+	if req.CreditLimit > 0 {
+		updates = append(updates, "credit_limit = ?")
+		args = append(args, req.CreditLimit)
+		hasUpdates = true
+	}
+
+	if !hasUpdates {
+		http.Error(w, "No fields to update", http.StatusBadRequest)
+		return
+	}
+
+	// Always update updated_at
+	updates = append(updates, "updated_at = ?")
+	args = append(args, time.Now())
+
+	// Add ID to args
+	args = append(args, id)
+
+	query := "UPDATE credit_cards SET " + strings.Join(updates, ", ") + " WHERE id = ?"
+	_, err = database.DB.Exec(query, args...)
+	if err != nil {
+		log.Printf("Error updating card %d: %v", id, err)
+		http.Error(w, "Failed to update card", http.StatusInternalServerError)
+		return
+	}
+
+	// Fetch and return updated card
+	querySelect := `
+		SELECT id, name, last_four, statement_day, days_until_due,
+		       credit_limit, created_at, updated_at
+		FROM credit_cards
+		WHERE id = ?
+	`
+
+	var card models.CreditCard
+	var creditLimit sql.NullFloat64
+
+	err = database.DB.QueryRow(querySelect, id).Scan(
+		&card.ID,
+		&card.Name,
+		&card.LastFour,
+		&card.StatementDay,
+		&card.DaysUntilDue,
+		&creditLimit,
+		&card.CreatedAt,
+		&card.UpdatedAt,
+	)
+	if err != nil {
+		log.Printf("Error fetching updated card %d: %v", id, err)
+		http.Error(w, "Failed to fetch updated card", http.StatusInternalServerError)
+		return
+	}
+
+	// Handle NULL values
+	if creditLimit.Valid {
+		card.CreditLimit = creditLimit.Float64
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(card)
+}
+
+// DeleteCard deletes a credit card and its associated statements
+func DeleteCard(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodDelete {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Extract ID from URL path (e.g., /api/v1/cards/1)
+	pathParts := strings.Split(r.URL.Path, "/")
+	if len(pathParts) < 5 {
+		http.Error(w, "Invalid URL", http.StatusBadRequest)
+		return
+	}
+
+	idStr := pathParts[4]
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "Invalid card ID", http.StatusBadRequest)
+		return
+	}
+
+	// Count associated statements
+	var statementCount int
+	err = database.DB.QueryRow("SELECT COUNT(*) FROM statements WHERE card_id = ?", id).Scan(&statementCount)
+	if err != nil {
+		log.Printf("Error counting statements for card %d: %v", id, err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	// Delete card (CASCADE will delete statements)
+	result, err := database.DB.Exec("DELETE FROM credit_cards WHERE id = ?", id)
+	if err != nil {
+		log.Printf("Error deleting card %d: %v", id, err)
+		http.Error(w, "Failed to delete card", http.StatusInternalServerError)
+		return
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		log.Printf("Error getting rows affected: %v", err)
+		http.Error(w, "Failed to delete card", http.StatusInternalServerError)
+		return
+	}
+
+	if rowsAffected == 0 {
+		http.Error(w, "Card not found", http.StatusNotFound)
+		return
+	}
+
+	response := map[string]interface{}{
+		"message":         "Card deleted successfully",
+		"statements_deleted": statementCount,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(response)
+}
+
+// GetSettings returns the current application settings
+func GetSettings(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Load config from file
+	cfg, err := config.LoadConfig("")
+	if err != nil {
+		log.Printf("Error loading config: %v", err)
+		http.Error(w, "Failed to load settings", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(cfg)
+}
+
+// UpdateSettings updates the application settings
+func UpdateSettings(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPut {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var cfg config.Config
+	if err := json.NewDecoder(r.Body).Decode(&cfg); err != nil {
+		log.Printf("Error decoding settings: %v", err)
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	// Validate configuration
+	if err := cfg.Validate(); err != nil {
+		log.Printf("Invalid configuration: %v", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Save configuration
+	if err := config.SaveConfig("", &cfg); err != nil {
+		log.Printf("Error saving config: %v", err)
+		http.Error(w, "Failed to save settings", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(cfg)
 }
