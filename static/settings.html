@@ -1,57 +1,38 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Settings - Payment Tracker</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #111827;
-        }
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #1F2937;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #4B5563;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #6B7280;
-        }
-    </style>
 </head>
-<body class="h-full flex text-gray-100">
+<body class="layout-container">
 
     <!-- Sidebar Navigation -->
-    <nav class="w-20 bg-gray-900 border-r border-gray-800 flex flex-col items-center p-4 space-y-6">
-        <div class="p-2 bg-blue-600 rounded-lg">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+    <nav class="sidebar">
+        <div class="sidebar-logo">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
             </svg>
         </div>
 
-        <a href="/" class="p-3 hover:bg-gray-800 rounded-lg text-gray-400 transition-colors" title="Dashboard">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <a href="/" class="nav-link" title="Dashboard">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6z" />
             </svg>
         </a>
 
-        <a href="/static/cards.html" class="p-3 hover:bg-gray-800 rounded-lg text-gray-400 transition-colors" title="Cards">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <a href="/static/cards.html" class="nav-link" title="Cards">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
             </svg>
         </a>
 
-        <a href="/static/settings.html" class="p-3 bg-gray-800 rounded-lg text-blue-400" title="Settings">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <a href="/static/settings.html" class="nav-link active" title="Settings">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
@@ -59,55 +40,57 @@
     </nav>
 
     <!-- Main Content Area -->
-    <main class="flex-1 p-8 overflow-y-auto">
-        <header class="mb-8">
-            <h1 class="text-3xl font-bold text-white">Settings</h1>
-            <p class="text-gray-400 mt-2">Configure application settings and notifications</p>
+    <main class="main-content">
+        <header class="page-header">
+            <div>
+                <h1 class="page-title">Settings</h1>
+                <p class="page-subtitle">Configure application settings and notifications</p>
+            </div>
         </header>
 
         <!-- Settings Form -->
-        <section class="bg-gray-800 rounded-lg shadow-lg p-8 max-w-3xl">
+        <section class="settings-section">
             <form id="settings-form">
 
                 <!-- Discord Webhook Section -->
-                <div class="mb-8">
-                    <div class="flex items-start justify-between mb-4">
+                <div class="settings-group">
+                    <div class="settings-header">
                         <div>
-                            <h2 class="text-xl font-semibold text-white mb-2">Discord Notifications</h2>
-                            <p class="text-sm text-gray-400">Receive payment reminders and statement notifications in Discord</p>
+                            <h2 class="settings-title">Discord Notifications</h2>
+                            <p class="settings-description">Receive payment reminders and statement notifications in Discord</p>
                         </div>
                         <a href="https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks"
                            target="_blank"
-                           class="text-blue-400 hover:text-blue-300 transition-colors flex items-center space-x-1 text-sm">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                           class="settings-help-link">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                             <span>Help</span>
                         </a>
                     </div>
 
-                    <div class="mb-4">
-                        <label for="discord-webhook-url" class="text-sm text-gray-400 block mb-2">Discord Webhook URL</label>
+                    <div class="form-group">
+                        <label for="discord-webhook-url" class="form-label">Discord Webhook URL</label>
                         <input
                             type="url"
                             id="discord-webhook-url"
                             placeholder="https://discord.com/api/webhooks/..."
-                            class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            class="form-input"
                             autocomplete="off">
-                        <p class="text-xs text-gray-500 mt-2">
+                        <p class="form-help">
                             Leave empty to disable Discord notifications. Must be a valid Discord webhook URL.
                         </p>
-                        <span id="webhook-error" class="text-xs text-red-400 mt-1 hidden block"></span>
+                        <span id="webhook-error" class="form-error"></span>
                     </div>
 
-                    <div class="bg-blue-900/20 border border-blue-700 p-4 rounded-lg">
-                        <div class="flex items-start space-x-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-400 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <div class="info-box">
+                        <div class="info-box-content">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="info-box-icon primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            <div class="text-sm text-blue-300">
-                                <p class="font-medium mb-1">How to get your Discord webhook URL:</p>
-                                <ol class="list-decimal list-inside space-y-1 text-blue-400">
+                            <div class="info-box-text">
+                                <p class="info-box-title">How to get your Discord webhook URL:</p>
+                                <ol class="info-box-list">
                                     <li>Open your Discord server settings</li>
                                     <li>Go to Integrations → Webhooks</li>
                                     <li>Create a new webhook or copy an existing one</li>
@@ -119,12 +102,12 @@
                 </div>
 
                 <!-- Save Button -->
-                <div class="flex justify-end pt-6 border-t border-gray-700">
+                <div class="settings-footer">
                     <button
                         type="submit"
                         id="save-settings-btn"
-                        class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-8 rounded-lg transition-colors flex items-center space-x-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        class="btn btn-primary btn-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                         </svg>
                         <span>Save Settings</span>
@@ -134,19 +117,17 @@
         </section>
 
         <!-- Additional Info Section -->
-        <section class="mt-6 max-w-3xl">
-            <div class="bg-gray-800/50 rounded-lg p-6 border border-gray-700">
-                <h3 class="text-lg font-semibold text-white mb-3">About Notifications</h3>
-                <p class="text-gray-400 text-sm leading-relaxed">
-                    When enabled, you'll receive notifications for upcoming statement dates and payment due dates.
-                    Notifications are sent automatically based on your credit card payment schedules.
-                </p>
-            </div>
+        <section class="settings-info-card">
+            <h3 class="settings-info-title">About Notifications</h3>
+            <p class="settings-info-text">
+                When enabled, you'll receive notifications for upcoming statement dates and payment due dates.
+                Notifications are sent automatically based on your credit card payment schedules.
+            </p>
         </section>
     </main>
 
     <!-- Toast Notification Container -->
-    <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2">
+    <div id="toast-container" class="toast-container">
         <!-- Toast notifications will be inserted here -->
     </div>
 
