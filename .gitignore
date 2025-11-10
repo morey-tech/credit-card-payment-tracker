@@ -24,6 +24,9 @@ go.work
 .env.local
 .env.*.local
 
+# Configuration files
+config.yaml
+
 # Database files
 *.db
 *.db-shm
