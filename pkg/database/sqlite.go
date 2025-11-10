@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"os"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -31,6 +32,13 @@ func InitDB(dbPath string) error {
 	// Create tables
 	if err := createTables(); err != nil {
 		return fmt.Errorf("failed to create tables: %w", err)
+	}
+
+	// Load sample data if environment variable is set
+	if os.Getenv("LOAD_SAMPLE_DATA") == "true" {
+		if err := LoadSampleData(DB); err != nil {
+			return fmt.Errorf("failed to load sample data: %w", err)
+		}
 	}
 
 	log.Println("Database initialized successfully")

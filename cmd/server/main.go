@@ -37,7 +37,15 @@ func main() {
 	// API routes
 	mux.HandleFunc("/api/health", handlers.HealthCheck)
 	mux.HandleFunc("/api/v1/cards", handlers.GetCards)
-	mux.HandleFunc("/api/v1/statements", handlers.GetStatements)
+	mux.HandleFunc("/api/v1/cards/", handlers.GetCardByID)
+	mux.HandleFunc("/api/v1/statements", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodPost {
+			handlers.CreateStatement(w, r)
+		} else {
+			handlers.GetStatements(w, r)
+		}
+	})
+	mux.HandleFunc("/api/v1/statements/", handlers.UpdateStatement)
 
 	// Serve static files
 	fs := http.FileServer(http.Dir("./static"))
