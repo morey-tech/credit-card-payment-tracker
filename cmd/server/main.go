@@ -9,11 +9,30 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/morey-tech/credit-card-payment-tracker/pkg/config"
 	"github.com/morey-tech/credit-card-payment-tracker/pkg/database"
 	"github.com/morey-tech/credit-card-payment-tracker/pkg/handlers"
 )
 
 func main() {
+	// Load application configuration
+	cfg, err := config.LoadConfig("")
+	if err != nil {
+		log.Fatalf("Failed to load configuration: %v", err)
+	}
+
+	// Validate configuration
+	if err := cfg.Validate(); err != nil {
+		log.Fatalf("Invalid configuration: %v", err)
+	}
+
+	log.Printf("Configuration loaded successfully")
+	if cfg.DiscordWebhookURL != "" {
+		log.Printf("Discord webhook configured")
+	} else {
+		log.Printf("Discord webhook not configured (notifications disabled)")
+	}
+
 	// Get configuration from environment variables
 	port := os.Getenv("PORT")
 	if port == "" {
