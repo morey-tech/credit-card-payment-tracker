@@ -36,6 +36,7 @@ USER 1000
 
 # Copy the binary from builder
 COPY --from=builder /app/server .
+COPY --from=builder /app/static ./static
 
 # Set environment variable to load sample data for dev builds
 ARG VERSION=dev
