@@ -174,16 +174,17 @@ function renderActionRequired(cards, statements) {
 function renderPendingPayments(cards, statements) {
     pendingPaymentsList.innerHTML = '';
 
-    const pendingStatements = statements
-        .filter(stmt => stmt.status === 'pending')
-        .sort((a, b) => new Date(a.due_date) - new Date(b.due_date));
+    // Only show statements that have been reviewed and have a scheduled payment date
+    const scheduledStatements = statements
+        .filter(stmt => stmt.status === 'pending' && stmt.scheduled_payment_date)
+        .sort((a, b) => new Date(a.scheduled_payment_date) - new Date(b.scheduled_payment_date));
 
-    if (pendingStatements.length === 0) {
+    if (scheduledStatements.length === 0) {
         pendingPaymentsList.innerHTML = '<li class="text-sm text-secondary">No payments scheduled.</li>';
         return;
     }
 
-    pendingStatements.forEach(stmt => {
+    scheduledStatements.forEach(stmt => {
         const card = cards.find(c => c.id === stmt.card_id);
         if (!card) return;
 
@@ -195,7 +196,7 @@ function renderPendingPayments(cards, statements) {
         li.innerHTML = `
             <span style="flex: 1; min-width: 0;">${card.name}</span>
             <span class="font-medium text-white" style="flex-shrink: 0; width: 100px; text-align: left;">${formatCurrency(stmt.amount)}</span>
-            <span class="text-secondary" style="flex-shrink: 0; width: 80px; text-align: right;">${formatDate(stmt.due_date)}</span>
+            <span class="text-secondary" style="flex-shrink: 0; width: 80px; text-align: right;">${formatDate(stmt.scheduled_payment_date)}</span>
         `;
         pendingPaymentsList.appendChild(li);
     });
@@ -204,16 +205,17 @@ function renderPendingPayments(cards, statements) {
 function renderPendingPaymentCards(cards, statements) {
     pendingPaymentCardsContainer.innerHTML = '';
 
-    const pendingStatements = statements
-        .filter(stmt => stmt.status === 'pending')
+    // Only show statements that have NOT been scheduled yet (no scheduled_payment_date)
+    const unscheduledStatements = statements
+        .filter(stmt => stmt.status === 'pending' && !stmt.scheduled_payment_date)
         .sort((a, b) => new Date(a.due_date) - new Date(b.due_date));
 
-    if (pendingStatements.length === 0) {
-        pendingPaymentCardsContainer.innerHTML = '<div style="padding: 2rem; text-align: center; color: #6b7280;">No pending payments</div>';
+    if (unscheduledStatements.length === 0) {
+        pendingPaymentCardsContainer.innerHTML = '<div style="padding: 2rem; text-align: center; color: #6b7280;">All payments have been scheduled!</div>';
         return;
     }
 
-    pendingStatements.forEach(stmt => {
+    unscheduledStatements.forEach(stmt => {
         const card = cards.find(c => c.id === stmt.card_id);
         if (!card) return;
 
@@ -222,21 +224,15 @@ function renderPendingPaymentCards(cards, statements) {
         const section = document.createElement('section');
         section.className = 'card-detail-section';
 
-        // Build the header with optional button
+        // Build the header with Record Payment button
         let headerHTML = `
             <div class="card-detail-header" style="display: flex; justify-content: space-between; align-items: center;">
                 <h2 class="card-detail-title">${card.name}</h2>
-        `;
-
-        if (!stmt.scheduled_payment_date) {
-            headerHTML += `
                 <button onclick="openScheduleModal(${stmt.id}, '${card.name}', '${stmt.due_date}')" class="btn btn-primary">
                     Record Payment
                 </button>
-            `;
-        }
-
-        headerHTML += `</div>`;
+            </div>
+        `;
 
         // Build the detail grid
         let gridHTML = `<div class="card-detail-grid">`;
@@ -264,16 +260,6 @@ function renderPendingPaymentCards(cards, statements) {
                 <span class="card-detail-value large">${formatDate(recommendedDate)}</span>
             </div>
         `;
-
-        // Scheduled Payment Date (if exists)
-        if (stmt.scheduled_payment_date) {
-            gridHTML += `
-                <div class="card-detail-item highlighted">
-                    <span class="card-detail-label success">Scheduled Payment Date</span>
-                    <span class="card-detail-value large" style="color: #10b981;">${formatDate(stmt.scheduled_payment_date)}</span>
-                </div>
-            `;
-        }
 
         gridHTML += `</div>`;
 
