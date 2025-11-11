@@ -194,7 +194,7 @@ function renderPendingPayments(cards, statements) {
         li.style.gap = '1rem';
         li.innerHTML = `
             <span style="flex: 1; min-width: 0;">${card.name}</span>
-            <span class="font-medium text-white" style="flex-shrink: 0; width: 100px; text-align: right;">${formatCurrency(stmt.amount)}</span>
+            <span class="font-medium text-white" style="flex-shrink: 0; width: 100px; text-align: left;">${formatCurrency(stmt.amount)}</span>
             <span class="text-secondary" style="flex-shrink: 0; width: 80px; text-align: right;">${formatDate(stmt.due_date)}</span>
         `;
         pendingPaymentsList.appendChild(li);
