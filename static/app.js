@@ -223,6 +223,7 @@ function renderPendingPaymentCards(cards, statements) {
 
         const section = document.createElement('section');
         section.className = 'card-detail-section';
+        section.setAttribute('data-statement-id', stmt.id);
 
         // Build the header with Record Payment button
         let headerHTML = `
@@ -402,13 +403,37 @@ scheduleForm.addEventListener('submit', async function(event) {
     try {
         await schedulePayment(statementId, scheduledDate);
 
-        // Refresh data
-        await loadData();
-
+        // Close modal first
         closeScheduleModal();
 
-        // Show success message
-        alert('Payment scheduled successfully!');
+        // Find the card section to animate
+        const cardSection = document.querySelector(`[data-statement-id="${statementId}"]`);
+
+        if (cardSection) {
+            // Add swipe-away animation
+            cardSection.classList.add('swipe-away');
+
+            // Wait for animation to complete, then refresh data
+            cardSection.addEventListener('animationend', async function() {
+                await loadData();
+
+                // Add fade-in animation to the pending payments card
+                // Since the list is sorted by date, the new payment could appear anywhere
+                setTimeout(() => {
+                    const pendingPaymentsCard = pendingPaymentsList.closest('.status-card');
+                    if (pendingPaymentsCard) {
+                        pendingPaymentsCard.classList.add('fade-in');
+                        // Remove the class after animation completes so it can be reused
+                        setTimeout(() => {
+                            pendingPaymentsCard.classList.remove('fade-in');
+                        }, 500);
+                    }
+                }, 50);
+            }, { once: true });
+        } else {
+            // Fallback if card section not found
+            await loadData();
+        }
     } catch (error) {
         alert('Failed to schedule payment. Please try again.');
     }
