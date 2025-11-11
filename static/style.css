@@ -241,6 +241,7 @@ body {
     padding: var(--spacing-xl);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-lg);
+    margin-bottom: var(--spacing-xl);
 }
 
 .card-detail-header {
