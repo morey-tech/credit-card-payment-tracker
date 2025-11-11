@@ -137,37 +137,3 @@ Run tests with race detection:
 ```bash
 go test -race ./...
 ```
-
-### Test Structure
-
-Tests are organized alongside source files:
-- `goals/scorer_test.go` - Round goal scoring tests
-- `goals/selector_test.go` - Goal selection tests
-- `goals/goals_test.go` - Goal definition tests
-- `scoring/scoring_test.go` - End-game calculation tests
-- `db/db_test.go` - Database initialization tests
-- `db/game_results_test.go` - CRUD operation tests
-- `main_test.go` - HTTP handler tests
-
-### Writing Tests
-
-- Use the `testify/assert` library for assertions
-- Name test functions with the pattern `Test<FunctionName>_<Scenario>`
-- Use table-driven tests for multiple scenarios
-- Test both success and error cases
-- Use temporary databases for database tests
-
-### CI/CD Integration
-
-Tests run automatically on every push to main via GitHub Actions. The build will fail if:
-- Any test fails
-- Race conditions are detected
-- Code doesn't compile
-
-## Project Context
-
-This is a Wingspan board game scoring application built with Go, featuring:
-- SQLite database for game results storage
-- Web-based UI for score tracking
-- Podman (Docker) containerization support
-    - Deployed to Kubernetes in production.
