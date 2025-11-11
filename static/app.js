@@ -246,6 +246,14 @@ function renderPendingPaymentCards(cards, statements) {
             </div>
         `;
 
+        // Statement Date
+        gridHTML += `
+            <div class="card-detail-item">
+                <span class="card-detail-label">Statement Date</span>
+                <span class="card-detail-value">${formatDate(stmt.statement_date)}</span>
+            </div>
+        `;
+
         // Official Due Date
         gridHTML += `
             <div class="card-detail-item">
