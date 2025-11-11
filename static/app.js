@@ -195,11 +195,38 @@ function renderPendingPayments(cards, statements) {
 
         const li = document.createElement('li');
         li.className = 'status-list-item';
-        li.innerHTML = `
-            <span>${card.name}</span>
-            <span class="font-medium text-white">${formatCurrency(stmt.amount)}</span>
-            <span class="text-secondary">Pay by ${formatDate(recommendedDate)}</span>
-        `;
+
+        // Check if payment has been scheduled
+        if (stmt.scheduled_payment_date) {
+            li.innerHTML = `
+                <div style="flex: 1;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                        <span>${card.name}</span>
+                        <span class="font-medium text-white">${formatCurrency(stmt.amount)}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.875rem;">
+                        <span class="text-secondary">Due: ${formatDate(stmt.due_date)}</span>
+                        <span style="color: #10b981;">Scheduled: ${formatDate(stmt.scheduled_payment_date)}</span>
+                    </div>
+                </div>
+            `;
+        } else {
+            li.innerHTML = `
+                <div style="flex: 1;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                        <span>${card.name}</span>
+                        <span class="font-medium text-white">${formatCurrency(stmt.amount)}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span class="text-secondary">Due: ${formatDate(stmt.due_date)}</span>
+                        <button onclick="openScheduleModal(${stmt.id}, '${card.name}', '${stmt.due_date}')" class="btn btn-primary btn-sm">
+                            Record Payment
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
         pendingPaymentsList.appendChild(li);
     });
 }
@@ -301,6 +328,91 @@ async function loadData() {
         showCardDetails(cardToShow, latestStatement);
     }
 }
+
+// Schedule Payment Modal Elements
+const scheduleModal = document.getElementById('schedule-modal');
+const scheduleForm = document.getElementById('schedule-form');
+const scheduleStatementId = document.getElementById('scheduleStatementId');
+const scheduleDueDate = document.getElementById('scheduleDueDate');
+const scheduleCardName = document.getElementById('schedule-card-name');
+const scheduleOfficialDueDate = document.getElementById('schedule-official-due-date');
+const scheduledPaymentDateInput = document.getElementById('scheduled-payment-date');
+
+// Schedule Payment Functions
+function openScheduleModal(statementId, cardName, dueDate) {
+    scheduleModal.classList.remove('hidden');
+    scheduleStatementId.value = statementId;
+    scheduleDueDate.value = dueDate;
+    scheduleCardName.textContent = cardName;
+    scheduleOfficialDueDate.textContent = formatDate(dueDate);
+
+    // Calculate and set recommended payment date (7 days before due date)
+    const recommendedDate = calculateRecommendedPaymentDate(dueDate);
+    const recommendedDateStr = recommendedDate.toISOString().split('T')[0];
+    scheduledPaymentDateInput.value = recommendedDateStr;
+}
+
+function closeScheduleModal() {
+    scheduleModal.classList.add('hidden');
+}
+
+async function schedulePayment(statementId, scheduledPaymentDate) {
+    try {
+        const response = await fetch(`${API_BASE}/statements/${statementId}/schedule`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                scheduled_payment_date: scheduledPaymentDate
+            })
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Failed to schedule payment: ${errorText}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error scheduling payment:', error);
+        throw error;
+    }
+}
+
+// Schedule Form Submission
+scheduleForm.addEventListener('submit', async function(event) {
+    event.preventDefault();
+
+    const statementId = parseInt(scheduleStatementId.value);
+    const scheduledDate = scheduledPaymentDateInput.value;
+
+    if (!statementId || !scheduledDate) {
+        alert('Please fill in all required fields.');
+        return;
+    }
+
+    try {
+        await schedulePayment(statementId, scheduledDate);
+
+        // Refresh data
+        await loadData();
+
+        closeScheduleModal();
+
+        // Show success message
+        alert('Payment scheduled successfully!');
+    } catch (error) {
+        alert('Failed to schedule payment. Please try again.');
+    }
+});
+
+// Close schedule modal if clicking outside
+scheduleModal.addEventListener('click', function(event) {
+    if (event.target === scheduleModal) {
+        closeScheduleModal();
+    }
+});
 
 // Load data when page loads
 document.addEventListener('DOMContentLoaded', loadData);

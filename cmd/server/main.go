@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -81,7 +82,17 @@ func main() {
 			handlers.GetStatements(w, r)
 		}
 	})
-	mux.HandleFunc("/api/v1/statements/", handlers.UpdateStatement)
+	mux.HandleFunc("/api/v1/statements/", func(w http.ResponseWriter, r *http.Request) {
+		// Check if this is a schedule request
+		if len(r.URL.Path) > len("/api/v1/statements/") {
+			pathParts := strings.Split(r.URL.Path, "/")
+			if len(pathParts) >= 6 && pathParts[5] == "schedule" {
+				handlers.SchedulePayment(w, r)
+				return
+			}
+		}
+		handlers.UpdateStatement(w, r)
+	})
 	mux.HandleFunc("/api/settings", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPut {
 			handlers.UpdateSettings(w, r)

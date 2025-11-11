@@ -91,6 +91,7 @@ func GetStatements(w http.ResponseWriter, r *http.Request) {
 	query := `
 		SELECT id, card_id, statement_date, due_date, amount,
 		       status, notified_statement, notified_payment,
+		       reviewed_at, scheduled_payment_date,
 		       created_at, updated_at
 		FROM statements
 		ORDER BY due_date DESC
@@ -107,6 +108,9 @@ func GetStatements(w http.ResponseWriter, r *http.Request) {
 	statements := []models.Statement{}
 	for rows.Next() {
 		var stmt models.Statement
+		var reviewedAt sql.NullTime
+		var scheduledPaymentDate sql.NullString
+
 		err := rows.Scan(
 			&stmt.ID,
 			&stmt.CardID,
@@ -116,6 +120,8 @@ func GetStatements(w http.ResponseWriter, r *http.Request) {
 			&stmt.Status,
 			&stmt.NotifiedStatement,
 			&stmt.NotifiedPayment,
+			&reviewedAt,
+			&scheduledPaymentDate,
 			&stmt.CreatedAt,
 			&stmt.UpdatedAt,
 		)
@@ -123,6 +129,15 @@ func GetStatements(w http.ResponseWriter, r *http.Request) {
 			log.Printf("Error scanning statement: %v", err)
 			continue
 		}
+
+		// Handle nullable fields
+		if reviewedAt.Valid {
+			stmt.ReviewedAt = &reviewedAt.Time
+		}
+		if scheduledPaymentDate.Valid {
+			stmt.ScheduledPaymentDate = &scheduledPaymentDate.String
+		}
+
 		statements = append(statements, stmt)
 	}
 
@@ -314,6 +329,78 @@ func UpdateStatement(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{"status": "updated"})
+}
+
+// SchedulePaymentRequest represents the request body for scheduling a payment
+type SchedulePaymentRequest struct {
+	ScheduledPaymentDate string `json:"scheduled_payment_date"`
+}
+
+// SchedulePayment schedules a payment for a statement
+func SchedulePayment(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPut {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Extract ID from URL path (e.g., /api/v1/statements/1/schedule)
+	pathParts := strings.Split(r.URL.Path, "/")
+	if len(pathParts) < 6 {
+		http.Error(w, "Invalid URL", http.StatusBadRequest)
+		return
+	}
+
+	idStr := pathParts[4]
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "Invalid statement ID", http.StatusBadRequest)
+		return
+	}
+
+	var req SchedulePaymentRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		log.Printf("Error decoding schedule payment request: %v", err)
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	// Validate scheduled_payment_date
+	if req.ScheduledPaymentDate == "" {
+		http.Error(w, "scheduled_payment_date is required", http.StatusBadRequest)
+		return
+	}
+
+	// Validate date format (ISO 8601: YYYY-MM-DD)
+	_, err = time.Parse("2006-01-02", req.ScheduledPaymentDate)
+	if err != nil {
+		http.Error(w, "scheduled_payment_date must be in YYYY-MM-DD format", http.StatusBadRequest)
+		return
+	}
+
+	// Update statement with reviewed_at (current time) and scheduled_payment_date
+	query := `
+		UPDATE statements
+		SET reviewed_at = ?, scheduled_payment_date = ?, updated_at = ?
+		WHERE id = ?
+	`
+
+	now := time.Now()
+	_, err = database.DB.Exec(query, now, req.ScheduledPaymentDate, now, id)
+	if err != nil {
+		log.Printf("Error scheduling payment for statement %d: %v", id, err)
+		http.Error(w, "Failed to schedule payment", http.StatusInternalServerError)
+		return
+	}
+
+	response := map[string]interface{}{
+		"status":                 "scheduled",
+		"reviewed_at":            now.Format(time.RFC3339),
+		"scheduled_payment_date": req.ScheduledPaymentDate,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(response)
 }
 
 // CreateCardRequest represents the request body for creating a credit card
