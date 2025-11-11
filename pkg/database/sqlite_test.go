@@ -191,7 +191,7 @@ func TestLoadSampleDataEnvironmentVariable(t *testing.T) {
 		t.Fatalf("Failed to count credit cards: %v", err)
 	}
 
-	if count < 2 {
-		t.Errorf("Expected at least 2 credit cards, got %d", count)
+	if count < 6 {
+		t.Errorf("Expected at least 6 credit cards, got %d", count)
 	}
 }

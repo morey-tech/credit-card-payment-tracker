@@ -1463,3 +1463,319 @@ func TestUpdateSettings_MethodNotAllowed(t *testing.T) {
 		t.Errorf("Expected status 405, got %d", resp.StatusCode)
 	}
 }
+
+// --- Additional tests for improved coverage ---
+
+func TestGetCards_DatabaseError(t *testing.T) {
+	tmpDB := setupTestDB(t)
+	// Close DB to simulate error
+	database.Close()
+
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/cards", nil)
+	w := httptest.NewRecorder()
+
+	GetCards(w, req)
+
+	resp := w.Result()
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusInternalServerError {
+		t.Errorf("Expected status 500, got %d", resp.StatusCode)
+	}
+
+	// Cleanup
+	os.Remove(tmpDB)
+}
+
+func TestGetStatements_DatabaseError(t *testing.T) {
+	tmpDB := setupTestDB(t)
+	// Close DB to simulate error
+	database.Close()
+
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/statements", nil)
+	w := httptest.NewRecorder()
+
+	GetStatements(w, req)
+
+	resp := w.Result()
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusInternalServerError {
+		t.Errorf("Expected status 500, got %d", resp.StatusCode)
+	}
+
+	// Cleanup
+	os.Remove(tmpDB)
+}
+
+func TestUpdateCard_InvalidJSON(t *testing.T) {
+	tmpDB := setupTestDB(t)
+	defer teardownTestDB(tmpDB)
+
+	// Insert test card
+	result, err := database.DB.Exec(`
+		INSERT INTO credit_cards (name, last_four, statement_day, days_until_due)
+		VALUES ('Test Card', '1234', 15, 25)
+	`)
+	if err != nil {
+		t.Fatalf("Failed to insert test card: %v", err)
+	}
+
+	cardID, _ := result.LastInsertId()
+
+	req := httptest.NewRequest(http.MethodPut, fmt.Sprintf("/api/v1/cards/%d", cardID), bytes.NewReader([]byte("invalid json")))
+	req.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+
+	UpdateCard(w, req)
+
+	resp := w.Result()
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusBadRequest {
+		t.Errorf("Expected status 400, got %d", resp.StatusCode)
+	}
+}
+
+func TestUpdateCard_InvalidLastFour(t *testing.T) {
+	tmpDB := setupTestDB(t)
+	defer teardownTestDB(tmpDB)
+
+	// Insert test card
+	result, err := database.DB.Exec(`
+		INSERT INTO credit_cards (name, last_four, statement_day, days_until_due)
+		VALUES ('Test Card', '1234', 15, 25)
+	`)
+	if err != nil {
+		t.Fatalf("Failed to insert test card: %v", err)
+	}
+
+	cardID, _ := result.LastInsertId()
+
+	updateReq := CreateCardRequest{
+		LastFour: "abc",
+	}
+
+	body, _ := json.Marshal(updateReq)
+	req := httptest.NewRequest(http.MethodPut, fmt.Sprintf("/api/v1/cards/%d", cardID), bytes.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+
+	UpdateCard(w, req)
+
+	resp := w.Result()
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusBadRequest {
+		t.Errorf("Expected status 400, got %d", resp.StatusCode)
+	}
+}
+
+func TestUpdateCard_InvalidCreditLimit(t *testing.T) {
+	tmpDB := setupTestDB(t)
+	defer teardownTestDB(tmpDB)
+
+	// Insert test card
+	result, err := database.DB.Exec(`
+		INSERT INTO credit_cards (name, last_four, statement_day, days_until_due)
+		VALUES ('Test Card', '1234', 15, 25)
+	`)
+	if err != nil {
+		t.Fatalf("Failed to insert test card: %v", err)
+	}
+
+	cardID, _ := result.LastInsertId()
+
+	updateReq := CreateCardRequest{
+		CreditLimit: -1000.00,
+	}
+
+	body, _ := json.Marshal(updateReq)
+	req := httptest.NewRequest(http.MethodPut, fmt.Sprintf("/api/v1/cards/%d", cardID), bytes.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+
+	UpdateCard(w, req)
+
+	resp := w.Result()
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusBadRequest {
+		t.Errorf("Expected status 400, got %d", resp.StatusCode)
+	}
+}
+
+func TestUpdateCard_UpdateCreditLimit(t *testing.T) {
+	tmpDB := setupTestDB(t)
+	defer teardownTestDB(tmpDB)
+
+	// Insert test card
+	result, err := database.DB.Exec(`
+		INSERT INTO credit_cards (name, last_four, statement_day, days_until_due, credit_limit)
+		VALUES ('Test Card', '1234', 15, 25, 5000.00)
+	`)
+	if err != nil {
+		t.Fatalf("Failed to insert test card: %v", err)
+	}
+
+	cardID, _ := result.LastInsertId()
+
+	updateReq := CreateCardRequest{
+		CreditLimit: 7500.00,
+	}
+
+	body, _ := json.Marshal(updateReq)
+	req := httptest.NewRequest(http.MethodPut, fmt.Sprintf("/api/v1/cards/%d", cardID), bytes.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+
+	UpdateCard(w, req)
+
+	resp := w.Result()
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		t.Errorf("Expected status 200, got %d", resp.StatusCode)
+	}
+
+	var card models.CreditCard
+	err = json.NewDecoder(resp.Body).Decode(&card)
+	if err != nil {
+		t.Fatalf("Failed to decode response: %v", err)
+	}
+
+	if card.CreditLimit != 7500.00 {
+		t.Errorf("Expected credit_limit 7500.00, got %.2f", card.CreditLimit)
+	}
+}
+
+func TestUpdateCard_InvalidDates(t *testing.T) {
+	tmpDB := setupTestDB(t)
+	defer teardownTestDB(tmpDB)
+
+	// Insert test card
+	result, err := database.DB.Exec(`
+		INSERT INTO credit_cards (name, last_four, statement_day, days_until_due)
+		VALUES ('Test Card', '1234', 15, 25)
+	`)
+	if err != nil {
+		t.Fatalf("Failed to insert test card: %v", err)
+	}
+
+	cardID, _ := result.LastInsertId()
+
+	// Test invalid statement date
+	updateReq := CreateCardRequest{
+		StatementDate: "invalid-date",
+		DueDate:       "2024-12-10",
+	}
+
+	body, _ := json.Marshal(updateReq)
+	req := httptest.NewRequest(http.MethodPut, fmt.Sprintf("/api/v1/cards/%d", cardID), bytes.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+
+	UpdateCard(w, req)
+
+	resp := w.Result()
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusBadRequest {
+		t.Errorf("Expected status 400, got %d", resp.StatusCode)
+	}
+}
+
+func TestUpdateCard_DueDateBeforeStatementDate(t *testing.T) {
+	tmpDB := setupTestDB(t)
+	defer teardownTestDB(tmpDB)
+
+	// Insert test card
+	result, err := database.DB.Exec(`
+		INSERT INTO credit_cards (name, last_four, statement_day, days_until_due)
+		VALUES ('Test Card', '1234', 15, 25)
+	`)
+	if err != nil {
+		t.Fatalf("Failed to insert test card: %v", err)
+	}
+
+	cardID, _ := result.LastInsertId()
+
+	updateReq := CreateCardRequest{
+		StatementDate: "2024-12-10",
+		DueDate:       "2024-11-10",
+	}
+
+	body, _ := json.Marshal(updateReq)
+	req := httptest.NewRequest(http.MethodPut, fmt.Sprintf("/api/v1/cards/%d", cardID), bytes.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+
+	UpdateCard(w, req)
+
+	resp := w.Result()
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusBadRequest {
+		t.Errorf("Expected status 400, got %d", resp.StatusCode)
+	}
+}
+
+func TestCreateStatement_InvalidCardID(t *testing.T) {
+	tmpDB := setupTestDB(t)
+	defer teardownTestDB(tmpDB)
+
+	stmt := models.Statement{
+		CardID:        9999,
+		StatementDate: "2024-11-01",
+		DueDate:       "2024-11-15",
+		Amount:        1500.50,
+	}
+
+	body, _ := json.Marshal(stmt)
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/statements", bytes.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+
+	CreateStatement(w, req)
+
+	resp := w.Result()
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusInternalServerError {
+		t.Errorf("Expected status 500, got %d", resp.StatusCode)
+	}
+}
+
+func TestUpdateCard_NameTooShort(t *testing.T) {
+	tmpDB := setupTestDB(t)
+	defer teardownTestDB(tmpDB)
+
+	// Insert test card
+	result, err := database.DB.Exec(`
+		INSERT INTO credit_cards (name, last_four, statement_day, days_until_due)
+		VALUES ('Test Card', '1234', 15, 25)
+	`)
+	if err != nil {
+		t.Fatalf("Failed to insert test card: %v", err)
+	}
+
+	cardID, _ := result.LastInsertId()
+
+	updateReq := CreateCardRequest{
+		Name: "A",
+	}
+
+	body, _ := json.Marshal(updateReq)
+	req := httptest.NewRequest(http.MethodPut, fmt.Sprintf("/api/v1/cards/%d", cardID), bytes.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+
+	UpdateCard(w, req)
+
+	resp := w.Result()
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusBadRequest {
+		t.Errorf("Expected status 400, got %d", resp.StatusCode)
+	}
+}

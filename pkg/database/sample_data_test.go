@@ -25,13 +25,13 @@ func TestLoadSampleData(t *testing.T) {
 
 	// Verify credit cards were inserted
 	var cardCount int
-	err = DB.QueryRow("SELECT COUNT(*) FROM credit_cards WHERE name IN ('TD Aeroplan Visa', 'Amex Cobalt')").Scan(&cardCount)
+	err = DB.QueryRow("SELECT COUNT(*) FROM credit_cards").Scan(&cardCount)
 	if err != nil {
 		t.Fatalf("Failed to count credit cards: %v", err)
 	}
 
-	if cardCount != 2 {
-		t.Errorf("Expected 2 sample credit cards, got %d", cardCount)
+	if cardCount != 6 {
+		t.Errorf("Expected 6 sample credit cards, got %d", cardCount)
 	}
 
 	// Verify TD Aeroplan Visa card details
@@ -112,8 +112,8 @@ func TestLoadSampleDataStatements(t *testing.T) {
 		t.Fatalf("Failed to count statements: %v", err)
 	}
 
-	if stmtCount != 4 {
-		t.Errorf("Expected 4 sample statements, got %d", stmtCount)
+	if stmtCount != 9 {
+		t.Errorf("Expected 9 sample statements, got %d", stmtCount)
 	}
 
 	// Verify at least one pending statement exists
