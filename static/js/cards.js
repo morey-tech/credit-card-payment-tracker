@@ -142,13 +142,13 @@ function renderCardsTable() {
     if (allCards.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="6" class="px-6 py-12 text-center text-gray-400">
-                    <div class="flex flex-col items-center space-y-3">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+                <td colspan="6" class="text-center">
+                    <div class="table-empty-state">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                         </svg>
                         <p class="text-lg">No credit cards yet</p>
-                        <p class="text-sm text-gray-500">Click "Add Card" to get started</p>
+                        <p class="text-sm text-muted">Click "Add Card" to get started</p>
                     </div>
                 </td>
             </tr>
@@ -160,37 +160,37 @@ function renderCardsTable() {
     const sortedCards = [...allCards].sort((a, b) => a.name.localeCompare(b.name));
 
     tbody.innerHTML = sortedCards.map(card => `
-        <tr class="hover:bg-gray-700/50 transition-colors">
-            <td class="px-6 py-4">
+        <tr>
+            <td>
                 <div class="font-medium text-white">${escapeHtml(card.name)}</div>
             </td>
-            <td class="px-6 py-4">
-                <div class="font-mono text-gray-300">${formatLastFour(card.last_four)}</div>
+            <td>
+                <div class="font-mono text-gray-light">${formatLastFour(card.last_four)}</div>
             </td>
-            <td class="px-6 py-4">
-                <div class="text-gray-300">${formatOrdinal(card.statement_day)}</div>
+            <td>
+                <div class="text-gray-light">${formatOrdinal(card.statement_day)}</div>
             </td>
-            <td class="px-6 py-4">
-                <div class="text-gray-300">${card.days_until_due} days</div>
+            <td>
+                <div class="text-gray-light">${card.days_until_due} days</div>
             </td>
-            <td class="px-6 py-4">
-                <div class="text-gray-300">${formatCurrency(card.credit_limit)}</div>
+            <td>
+                <div class="text-gray-light">${formatCurrency(card.credit_limit)}</div>
             </td>
-            <td class="px-6 py-4 text-right">
-                <div class="flex justify-end space-x-2">
+            <td class="text-right">
+                <div class="table-actions">
                     <button
                         onclick="openEditCardModal(${card.id})"
-                        class="text-blue-400 hover:text-blue-300 font-medium transition-colors p-2"
+                        class="btn-icon btn-icon-edit"
                         title="Edit card">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                         </svg>
                     </button>
                     <button
                         onclick="openDeleteConfirmation(${card.id})"
-                        class="text-red-400 hover:text-red-300 font-medium transition-colors p-2"
+                        class="btn-icon btn-icon-delete"
                         title="Delete card">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>
                     </button>
@@ -439,12 +439,6 @@ async function confirmDelete() {
 function showNotification(message, type = 'info') {
     const container = document.getElementById('toast-container');
 
-    const colors = {
-        success: 'bg-green-600 border-green-500',
-        error: 'bg-red-600 border-red-500',
-        info: 'bg-blue-600 border-blue-500',
-    };
-
     const icons = {
         success: '<path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />',
         error: '<path stroke-linecap="round" stroke-linejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />',
@@ -452,14 +446,16 @@ function showNotification(message, type = 'info') {
     };
 
     const toast = document.createElement('div');
-    toast.className = `${colors[type]} border-l-4 p-4 rounded-lg shadow-lg flex items-center space-x-3 min-w-[300px] max-w-md transform transition-all duration-300 translate-x-0`;
+    toast.className = `toast ${type}`;
     toast.innerHTML = `
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="toast-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             ${icons[type]}
         </svg>
-        <span class="text-white text-sm font-medium flex-1">${escapeHtml(message)}</span>
-        <button onclick="this.parentElement.remove()" class="text-white/80 hover:text-white">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <div class="toast-content">
+            <div class="toast-message">${escapeHtml(message)}</div>
+        </div>
+        <button onclick="this.parentElement.remove()" class="toast-close">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
         </button>
@@ -469,9 +465,7 @@ function showNotification(message, type = 'info') {
 
     // Auto-dismiss after 4 seconds
     setTimeout(() => {
-        toast.style.opacity = '0';
-        toast.style.transform = 'translateX(400px)';
-        setTimeout(() => toast.remove(), 300);
+        toast.remove();
     }, 4000);
 }
 

@@ -1,57 +1,38 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Credit Card Management - Payment Tracker</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/static/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #111827;
-        }
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #1F2937;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #4B5563;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #6B7280;
-        }
-    </style>
 </head>
-<body class="h-full flex text-gray-100">
+<body class="layout-container">
 
     <!-- Sidebar Navigation -->
-    <nav class="w-20 bg-gray-900 border-r border-gray-800 flex flex-col items-center p-4 space-y-6">
-        <div class="p-2 bg-blue-600 rounded-lg">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+    <nav class="sidebar">
+        <div class="sidebar-logo">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
             </svg>
         </div>
 
-        <a href="/" class="p-3 hover:bg-gray-800 rounded-lg text-gray-400 transition-colors" title="Dashboard">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <a href="/" class="nav-link" title="Dashboard">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6z" />
             </svg>
         </a>
 
-        <a href="/static/cards.html" class="p-3 bg-gray-800 rounded-lg text-blue-400" title="Cards">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <a href="/static/cards.html" class="nav-link active" title="Cards">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
             </svg>
         </a>
 
-        <a href="/static/settings.html" class="p-3 hover:bg-gray-800 rounded-lg text-gray-400 transition-colors" title="Settings">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <a href="/static/settings.html" class="nav-link" title="Settings">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
@@ -59,11 +40,11 @@
     </nav>
 
     <!-- Main Content Area -->
-    <main class="flex-1 p-8 overflow-y-auto">
-        <header class="mb-8 flex justify-between items-center">
-            <h1 class="text-3xl font-bold text-white">Credit Card Management</h1>
-            <button onclick="openAddCardModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition-colors flex items-center space-x-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+    <main class="main-content">
+        <header class="page-header">
+            <h1 class="page-title">Credit Card Management</h1>
+            <button onclick="openAddCardModal()" class="btn btn-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
                 </svg>
                 <span>Add Card</span>
@@ -71,25 +52,25 @@
         </header>
 
         <!-- Cards Table -->
-        <section class="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="w-full" id="cards-table">
-                    <thead class="bg-gray-900 border-b border-gray-700">
+        <section class="table-section">
+            <div class="table-container">
+                <table class="data-table" id="cards-table">
+                    <thead>
                         <tr>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Card Name</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Last Four</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Statement Day</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Days Until Due</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Credit Limit</th>
-                            <th class="px-6 py-4 text-right text-xs font-semibold text-gray-400 uppercase tracking-wider">Actions</th>
+                            <th>Card Name</th>
+                            <th>Last Four</th>
+                            <th>Statement Day</th>
+                            <th>Days Until Due</th>
+                            <th>Credit Limit</th>
+                            <th class="text-right">Actions</th>
                         </tr>
                     </thead>
-                    <tbody id="cards-table-body" class="divide-y divide-gray-700">
+                    <tbody id="cards-table-body">
                         <!-- Table rows will be inserted here by JavaScript -->
                         <tr>
-                            <td colspan="6" class="px-6 py-8 text-center text-gray-400">
-                                <div class="flex flex-col items-center space-y-2">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+                            <td colspan="6" class="text-center">
+                                <div class="table-empty-state">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                                     </svg>
                                     <span>Loading cards...</span>
@@ -102,87 +83,87 @@
         </section>
 
         <!-- Mobile Card List (Hidden on Desktop) -->
-        <section id="cards-mobile-list" class="hidden space-y-4">
+        <section id="cards-mobile-list" class="hidden">
             <!-- Mobile card items will be inserted here -->
         </section>
     </main>
 
     <!-- Add/Edit Card Modal -->
-    <div id="card-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center p-4 hidden z-50">
-        <div class="bg-gray-800 w-full max-w-md p-8 rounded-lg shadow-2xl">
-            <h2 id="modal-title" class="text-2xl font-bold text-white mb-6">Add Credit Card</h2>
+    <div id="card-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h2 id="modal-title" class="modal-title">Add Credit Card</h2>
 
             <form id="card-form">
                 <input type="hidden" id="card-id-input">
 
-                <div class="mb-4">
-                    <label for="card-name" class="text-sm text-gray-400 block mb-2">Card Name *</label>
+                <div class="form-group">
+                    <label for="card-name" class="form-label">Card Name *</label>
                     <input
                         type="text"
                         id="card-name"
                         placeholder="TD Aeroplan Visa"
-                        class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        class="form-input"
                         required
                         minlength="2"
                         maxlength="255">
-                    <span id="card-name-error" class="text-xs text-red-400 mt-1 hidden"></span>
+                    <span id="card-name-error" class="form-error"></span>
                 </div>
 
-                <div class="mb-4">
-                    <label for="last-four" class="text-sm text-gray-400 block mb-2">Last Four Digits *</label>
+                <div class="form-group">
+                    <label for="last-four" class="form-label">Last Four Digits *</label>
                     <input
                         type="text"
                         id="last-four"
                         placeholder="1234"
-                        class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        class="form-input"
                         required
                         pattern="[0-9]{4}"
                         maxlength="4">
-                    <span id="last-four-error" class="text-xs text-red-400 mt-1 hidden"></span>
+                    <span id="last-four-error" class="form-error"></span>
                 </div>
 
-                <div class="mb-4">
-                    <label for="statement-date-input" class="text-sm text-gray-400 block mb-2">Last Statement Date *</label>
+                <div class="form-group">
+                    <label for="statement-date-input" class="form-label">Last Statement Date *</label>
                     <input
                         type="date"
                         id="statement-date-input"
-                        class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        class="form-input"
                         required>
-                    <span class="text-xs text-gray-500 mt-1 block">Used to calculate statement day of month</span>
-                    <span id="statement-date-error" class="text-xs text-red-400 mt-1 hidden"></span>
+                    <span class="form-help">Used to calculate statement day of month</span>
+                    <span id="statement-date-error" class="form-error"></span>
                 </div>
 
-                <div class="mb-4">
-                    <label for="due-date-input" class="text-sm text-gray-400 block mb-2">Last Due Date *</label>
+                <div class="form-group">
+                    <label for="due-date-input" class="form-label">Last Due Date *</label>
                     <input
                         type="date"
                         id="due-date-input"
-                        class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        class="form-input"
                         required>
-                    <span class="text-xs text-gray-500 mt-1 block">Used to calculate days until due</span>
-                    <span id="due-date-error" class="text-xs text-red-400 mt-1 hidden"></span>
+                    <span class="form-help">Used to calculate days until due</span>
+                    <span id="due-date-error" class="form-error"></span>
                 </div>
 
-                <div class="mb-8">
-                    <label for="credit-limit" class="text-sm text-gray-400 block mb-2">Credit Limit (Optional)</label>
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">$</span>
+                <div class="form-group large-spacing">
+                    <label for="credit-limit" class="form-label">Credit Limit (Optional)</label>
+                    <div class="input-wrapper">
+                        <span class="input-prefix">$</span>
                         <input
                             type="number"
                             id="credit-limit"
                             step="0.01"
                             placeholder="5000.00"
-                            class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 pl-8 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            class="form-input input-with-prefix"
                             min="0">
                     </div>
-                    <span id="credit-limit-error" class="text-xs text-red-400 mt-1 hidden"></span>
+                    <span id="credit-limit-error" class="form-error"></span>
                 </div>
 
-                <div class="flex justify-end space-x-4">
-                    <button type="button" onclick="closeCardModal()" class="bg-gray-600 hover:bg-gray-700 text-gray-100 font-medium py-2 px-6 rounded-lg transition-colors">
+                <div class="btn-group">
+                    <button type="button" onclick="closeCardModal()" class="btn btn-secondary">
                         Cancel
                     </button>
-                    <button type="submit" id="save-card-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition-colors">
+                    <button type="submit" id="save-card-btn" class="btn btn-primary">
                         Save
                     </button>
                 </div>
@@ -191,32 +172,32 @@
     </div>
 
     <!-- Delete Confirmation Modal -->
-    <div id="delete-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center p-4 hidden z-50">
-        <div class="bg-gray-800 w-full max-w-md p-8 rounded-lg shadow-2xl border-2 border-red-600">
-            <div class="flex items-center space-x-3 mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+    <div id="delete-modal" class="modal-overlay hidden">
+        <div class="modal-content delete-modal">
+            <div class="modal-header">
+                <svg xmlns="http://www.w3.org/2000/svg" class="modal-icon danger" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
-                <h2 class="text-2xl font-bold text-white">Delete Credit Card</h2>
+                <h2 class="modal-title">Delete Credit Card</h2>
             </div>
 
-            <div class="mb-6">
-                <p class="text-gray-300 mb-4">Are you sure you want to delete this credit card?</p>
-                <div class="bg-gray-700 p-4 rounded-lg mb-4">
-                    <p class="text-white font-medium" id="delete-card-name">Card Name</p>
-                    <p class="text-gray-400 text-sm" id="delete-card-last-four">•••• 1234</p>
+            <div>
+                <p class="text-secondary mb-2">Are you sure you want to delete this credit card?</p>
+                <div class="delete-card-info mb-2">
+                    <p class="delete-card-name font-medium" id="delete-card-name">Card Name</p>
+                    <p class="delete-card-last-four" id="delete-card-last-four">•••• 1234</p>
                 </div>
-                <div class="bg-yellow-900/30 border border-yellow-700 p-3 rounded-lg mb-2">
-                    <p class="text-yellow-400 text-sm" id="delete-statement-count">This card has 0 statement(s).</p>
+                <div class="delete-warning-box">
+                    <p class="delete-warning-text" id="delete-statement-count">This card has 0 statement(s).</p>
                 </div>
-                <p class="text-red-400 text-sm">⚠️ Deleting this card will also delete all associated statements. This action cannot be undone.</p>
+                <p class="delete-danger-text">⚠️ Deleting this card will also delete all associated statements. This action cannot be undone.</p>
             </div>
 
-            <div class="flex justify-end space-x-4">
-                <button type="button" onclick="closeDeleteModal()" class="bg-gray-600 hover:bg-gray-700 text-gray-100 font-medium py-2 px-6 rounded-lg transition-colors">
+            <div class="btn-group">
+                <button type="button" onclick="closeDeleteModal()" class="btn btn-secondary">
                     Cancel
                 </button>
-                <button type="button" onclick="confirmDelete()" id="confirm-delete-btn" class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-6 rounded-lg transition-colors">
+                <button type="button" onclick="confirmDelete()" id="confirm-delete-btn" class="btn btn-danger">
                     Delete Card
                 </button>
             </div>
@@ -224,7 +205,7 @@
     </div>
 
     <!-- Toast Notification Container -->
-    <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2">
+    <div id="toast-container" class="toast-container">
         <!-- Toast notifications will be inserted here -->
     </div>
 

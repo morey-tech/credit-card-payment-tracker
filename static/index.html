@@ -1,57 +1,38 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Credit Card Payment Tracker</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/static/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #111827;
-        }
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #1F2937;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #4B5563;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #6B7280;
-        }
-    </style>
 </head>
-<body class="h-full flex text-gray-100">
+<body class="layout-container">
 
     <!-- Sidebar Navigation -->
-    <nav class="w-20 bg-gray-900 border-r border-gray-800 flex flex-col items-center p-4 space-y-6">
-        <div class="p-2 bg-blue-600 rounded-lg">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+    <nav class="sidebar">
+        <div class="sidebar-logo">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
             </svg>
         </div>
 
-        <a href="/" class="p-3 bg-gray-800 rounded-lg text-blue-400" title="Dashboard">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <a href="/" class="nav-link active" title="Dashboard">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6z" />
             </svg>
         </a>
 
-        <a href="/static/cards.html" class="p-3 hover:bg-gray-800 rounded-lg text-gray-400 transition-colors" title="Cards">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <a href="/static/cards.html" class="nav-link" title="Cards">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
             </svg>
         </a>
 
-        <a href="/static/settings.html" class="p-3 hover:bg-gray-800 rounded-lg text-gray-400 transition-colors" title="Settings">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <a href="/static/settings.html" class="nav-link" title="Settings">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
@@ -59,100 +40,100 @@
     </nav>
 
     <!-- Main Content Area -->
-    <main class="flex-1 p-8 overflow-y-auto">
-        <header class="mb-8">
-            <h1 class="text-3xl font-bold text-white">My Credit Card Payments</h1>
+    <main class="main-content">
+        <header class="page-header">
+            <h1 class="page-title">My Credit Card Payments</h1>
         </header>
 
         <!-- Top Status Cards -->
-        <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <section class="status-cards-grid">
 
             <!-- Upcoming Statements -->
-            <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
-                <h2 class="text-lg font-semibold text-gray-300 mb-4">Upcoming Statements</h2>
-                <ul id="upcoming-statements-list" class="space-y-3">
-                    <li class="text-sm text-gray-400">Loading...</li>
+            <div class="status-card">
+                <h2 class="status-card-title">Upcoming Statements</h2>
+                <ul id="upcoming-statements-list" class="status-card-list">
+                    <li>Loading...</li>
                 </ul>
             </div>
 
             <!-- Action Required! -->
-            <div id="action-required-card" class="bg-gray-800 p-6 rounded-lg shadow-lg border-2 border-blue-500">
-                <h2 class="text-lg font-semibold text-yellow-400 mb-4">Action Required!</h2>
+            <div id="action-required-card" class="status-card highlighted">
+                <h2 class="status-card-title warning">Action Required!</h2>
                 <div id="action-items-container">
-                    <span class="text-sm text-gray-400">Loading...</span>
+                    <span class="text-secondary">Loading...</span>
                 </div>
             </div>
 
             <!-- Pending Payments -->
-            <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
-                <h2 class="text-lg font-semibold text-gray-300 mb-4">Pending Payments</h2>
-                <ul id="pending-payments-list" class="space-y-3">
-                    <li id="pending-placeholder" class="text-sm text-gray-400">Loading...</li>
+            <div class="status-card">
+                <h2 class="status-card-title">Pending Payments</h2>
+                <ul id="pending-payments-list" class="status-card-list">
+                    <li id="pending-placeholder">Loading...</li>
                 </ul>
             </div>
         </section>
 
         <!-- Main Card Detail View -->
-        <section id="card-detail-section" class="bg-gray-800 p-8 rounded-lg shadow-lg">
-            <div class="flex flex-col md:flex-row justify-between md:items-center mb-6">
-                <h2 id="detail-card-name" class="text-2xl font-bold text-white mb-2 md:mb-0">Select a card</h2>
+        <section id="card-detail-section" class="card-detail-section">
+            <div class="card-detail-header">
+                <h2 id="detail-card-name" class="card-detail-title">Select a card</h2>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div>
-                    <span class="text-sm text-gray-400 block">Official Due Date</span>
-                    <span id="detail-due-date" class="text-xl font-medium text-gray-100">---</span>
+            <div class="card-detail-grid">
+                <div class="card-detail-item">
+                    <span class="card-detail-label">Official Due Date</span>
+                    <span id="detail-due-date" class="card-detail-value">---</span>
                 </div>
 
-                <div>
-                    <span class="text-sm text-gray-400 block">Statement Amount</span>
-                    <span id="detail-statement-amount" class="text-xl font-medium text-gray-100">$ --.--</span>
+                <div class="card-detail-item">
+                    <span class="card-detail-label">Statement Amount</span>
+                    <span id="detail-statement-amount" class="card-detail-value">$ --.--</span>
                 </div>
 
-                <div id="detail-rec-payment-container" class="bg-gray-700 p-4 rounded-lg hidden">
-                    <span class="text-sm text-green-400 block">Recommended Payment Date</span>
-                    <span id="detail-rec-payment-date" class="text-xl font-bold text-white">---</span>
+                <div id="detail-rec-payment-container" class="card-detail-item highlighted hidden">
+                    <span class="card-detail-label success">Recommended Payment Date</span>
+                    <span id="detail-rec-payment-date" class="card-detail-value large">---</span>
                 </div>
             </div>
         </section>
     </main>
 
     <!-- Modal for Data Entry -->
-    <div id="statement-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center p-4 hidden z-50">
-        <div class="bg-gray-800 w-full max-w-md p-8 rounded-lg shadow-2xl">
-            <h2 class="text-2xl font-bold text-white mb-6">Enter Statement Details</h2>
+    <div id="statement-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h2 class="modal-title">Enter Statement Details</h2>
 
             <form id="statement-form">
                 <input type="hidden" id="cardIdInput">
 
-                <div class="mb-4">
-                    <label class="text-sm text-gray-400 block mb-2">Credit Card</label>
-                    <span id="modal-card-name" class="text-lg font-medium text-white"></span>
+                <div class="form-group">
+                    <label class="form-label">Credit Card</label>
+                    <span id="modal-card-name" class="card-detail-value"></span>
                 </div>
 
-                <div class="mb-4">
-                    <label for="statement-amount" class="text-sm text-gray-400 block mb-2">Statement Amount</label>
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">$</span>
-                        <input type="number" id="statement-amount" step="0.01" placeholder="1250.75" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 pl-8 text-white focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                <div class="form-group">
+                    <label for="statement-amount" class="form-label">Statement Amount</label>
+                    <div class="input-wrapper">
+                        <span class="input-prefix">$</span>
+                        <input type="number" id="statement-amount" step="0.01" placeholder="1250.75" class="form-input input-with-prefix" required>
                     </div>
                 </div>
 
-                <div class="mb-4">
-                    <label for="statement-date" class="text-sm text-gray-400 block mb-2">Statement Date</label>
-                    <input type="date" id="statement-date" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                <div class="form-group">
+                    <label for="statement-date" class="form-label">Statement Date</label>
+                    <input type="date" id="statement-date" class="form-input" required>
                 </div>
 
-                <div class="mb-8">
-                    <label for="official-due-date" class="text-sm text-gray-400 block mb-2">Official Due Date</label>
-                    <input type="date" id="official-due-date" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                <div class="form-group large-spacing">
+                    <label for="official-due-date" class="form-label">Official Due Date</label>
+                    <input type="date" id="official-due-date" class="form-input" required>
                 </div>
 
-                <div class="flex justify-end space-x-4">
-                    <button type="button" onclick="closeModal()" class="bg-gray-600 hover:bg-gray-700 text-gray-100 font-medium py-2 px-6 rounded-lg transition-colors">
+                <div class="btn-group">
+                    <button type="button" onclick="closeModal()" class="btn btn-secondary">
                         Cancel
                     </button>
-                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition-colors">
+                    <button type="submit" class="btn btn-primary">
                         Save
                     </button>
                 </div>

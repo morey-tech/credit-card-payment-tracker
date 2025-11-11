@@ -75,12 +75,6 @@ function validateDiscordWebhookURL(url) {
 function showNotification(message, type = 'info') {
     const container = document.getElementById('toast-container');
 
-    const colors = {
-        success: 'bg-green-600 border-green-500',
-        error: 'bg-red-600 border-red-500',
-        info: 'bg-blue-600 border-blue-500',
-    };
-
     const icons = {
         success: '<path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />',
         error: '<path stroke-linecap="round" stroke-linejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />',
@@ -88,14 +82,16 @@ function showNotification(message, type = 'info') {
     };
 
     const toast = document.createElement('div');
-    toast.className = `${colors[type]} border-l-4 p-4 rounded-lg shadow-lg flex items-center space-x-3 min-w-[300px] max-w-md transform transition-all duration-300 translate-x-0`;
+    toast.className = `toast ${type}`;
     toast.innerHTML = `
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="toast-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             ${icons[type]}
         </svg>
-        <span class="text-white font-medium flex-1">${message}</span>
-        <button onclick="this.parentElement.remove()" class="text-white hover:text-gray-200 transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <div class="toast-content">
+            <div class="toast-message">${message}</div>
+        </div>
+        <button onclick="this.parentElement.remove()" class="toast-close">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
         </button>
@@ -105,9 +101,7 @@ function showNotification(message, type = 'info') {
 
     // Auto-remove after 5 seconds
     setTimeout(() => {
-        toast.style.opacity = '0';
-        toast.style.transform = 'translateX(100%)';
-        setTimeout(() => toast.remove(), 300);
+        toast.remove();
     }, 5000);
 }
 
@@ -156,7 +150,6 @@ async function handleSettingsFormSubmit(event) {
 
     // Disable save button while saving
     saveButton.disabled = true;
-    saveButton.classList.add('opacity-50', 'cursor-not-allowed');
 
     try {
         const settings = {
@@ -171,7 +164,6 @@ async function handleSettingsFormSubmit(event) {
     } finally {
         // Re-enable save button
         saveButton.disabled = false;
-        saveButton.classList.remove('opacity-50', 'cursor-not-allowed');
     }
 }
 

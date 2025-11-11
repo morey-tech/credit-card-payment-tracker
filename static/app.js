@@ -116,7 +116,7 @@ function renderUpcomingStatements(cards) {
     upcomingStatementsList.innerHTML = '';
 
     if (cards.length === 0) {
-        upcomingStatementsList.innerHTML = '<li class="text-sm text-gray-400">No cards found</li>';
+        upcomingStatementsList.innerHTML = '<li class="text-sm text-secondary">No cards found</li>';
         return;
     }
 
@@ -130,10 +130,10 @@ function renderUpcomingStatements(cards) {
 
     upcomingCards.forEach(card => {
         const li = document.createElement('li');
-        li.className = 'flex justify-between items-center text-sm';
+        li.className = 'status-list-item';
         li.innerHTML = `
             <span>${card.name}</span>
-            <span class="text-gray-400">${formatDate(card.nextStatement)}</span>
+            <span class="text-secondary">${formatDate(card.nextStatement)}</span>
         `;
         upcomingStatementsList.appendChild(li);
     });
@@ -156,17 +156,17 @@ function renderActionRequired(cards, statements) {
     });
 
     if (cardsNeedingData.length === 0) {
-        actionItemsContainer.innerHTML = '<span class="text-sm text-gray-400">All caught up!</span>';
-        actionRequiredCard.classList.remove('border-blue-500');
-        actionRequiredCard.classList.add('border-gray-700');
+        actionItemsContainer.innerHTML = '<span class="text-sm text-secondary">All caught up!</span>';
+        actionRequiredCard.classList.remove('border-primary');
+        actionRequiredCard.classList.add('border-gray');
     } else {
         cardsNeedingData.forEach(card => {
             const div = document.createElement('div');
-            div.className = 'flex justify-between items-center mb-2';
+            div.className = 'status-list-item mb-2';
             div.id = `action-card-${card.id}`;
             div.innerHTML = `
                 <span class="font-medium">${card.name}</span>
-                <button onclick="openModal(${card.id}, '${card.name}')" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 px-4 rounded-lg transition-colors">
+                <button onclick="openModal(${card.id}, '${card.name}')" class="btn btn-primary btn-sm">
                     Enter Statement Data
                 </button>
             `;
@@ -183,7 +183,7 @@ function renderPendingPayments(cards, statements) {
         .sort((a, b) => new Date(a.due_date) - new Date(b.due_date));
 
     if (pendingStatements.length === 0) {
-        pendingPaymentsList.innerHTML = '<li class="text-sm text-gray-400">No payments scheduled.</li>';
+        pendingPaymentsList.innerHTML = '<li class="text-sm text-secondary">No payments scheduled.</li>';
         return;
     }
 
@@ -194,11 +194,11 @@ function renderPendingPayments(cards, statements) {
         const recommendedDate = calculateRecommendedPaymentDate(stmt.due_date);
 
         const li = document.createElement('li');
-        li.className = 'flex justify-between items-center text-sm';
+        li.className = 'status-list-item';
         li.innerHTML = `
             <span>${card.name}</span>
-            <span class="font-medium text-gray-100">${formatCurrency(stmt.amount)}</span>
-            <span class="text-gray-400">Pay by ${formatDate(recommendedDate)}</span>
+            <span class="font-medium text-white">${formatCurrency(stmt.amount)}</span>
+            <span class="text-secondary">Pay by ${formatDate(recommendedDate)}</span>
         `;
         pendingPaymentsList.appendChild(li);
     });
