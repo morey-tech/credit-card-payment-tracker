@@ -241,6 +241,7 @@ body {
     padding: var(--spacing-xl);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-lg);
+    margin-bottom: var(--spacing-xl);
 }
 
 .card-detail-header {
@@ -1228,4 +1229,44 @@ body {
 /* Table Cell Content */
 .table-cell-content {
     color: var(--text-gray-light);
+}
+
+/* ========================================
+   11. Payment Scheduling Animations
+   ======================================== */
+
+/* Swipe away animation for scheduled card sections */
+@keyframes swipeAway {
+    0% {
+        transform: translateX(0) scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: translateX(30px) scale(0.95);
+        opacity: 0.7;
+    }
+    100% {
+        transform: translateX(100%) scale(0.8);
+        opacity: 0;
+    }
+}
+
+.swipe-away {
+    animation: swipeAway 0.4s ease-in-out forwards;
+}
+
+/* Fade in animation for new pending payment items */
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-out;
 }

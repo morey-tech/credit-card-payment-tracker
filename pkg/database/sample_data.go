@@ -70,13 +70,15 @@ func LoadSampleData(db *sql.DB) error {
 		return fmt.Errorf("failed to insert past TD statement: %w", err)
 	}
 
-	// Current statement (pending)
+	// Current statement (pending) with scheduled payment
 	currentStatementDate := time.Date(now.Year(), now.Month(), 15, 0, 0, 0, 0, time.UTC)
 	currentDueDate := time.Date(now.Year(), now.Month()+1, 10, 0, 0, 0, 0, time.UTC)
+	scheduledPaymentDate := currentDueDate.AddDate(0, 0, -7) // 7 days before due date
+	reviewedTime := now.Add(-2 * time.Hour)                  // Reviewed 2 hours ago
 	_, err = tx.Exec(`
-		INSERT INTO statements (card_id, statement_date, due_date, amount, status, notified_statement, notified_payment, created_at, updated_at)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-	`, tdCardID, currentStatementDate.Format("2006-01-02"), currentDueDate.Format("2006-01-02"), 892.50, "pending", false, false, time.Now(), time.Now())
+		INSERT INTO statements (card_id, statement_date, due_date, amount, status, notified_statement, notified_payment, reviewed_at, scheduled_payment_date, created_at, updated_at)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+	`, tdCardID, currentStatementDate.Format("2006-01-02"), currentDueDate.Format("2006-01-02"), 892.50, "pending", false, false, reviewedTime, scheduledPaymentDate.Format("2006-01-02"), time.Now(), time.Now())
 	if err != nil {
 		return fmt.Errorf("failed to insert current TD statement: %w", err)
 	}
@@ -93,13 +95,13 @@ func LoadSampleData(db *sql.DB) error {
 		return fmt.Errorf("failed to insert past Amex statement: %w", err)
 	}
 
-	// Current statement (pending)
+	// Current statement (pending) - not yet scheduled to demonstrate "Record Payment" button
 	amexCurrentStatementDate := time.Date(now.Year(), now.Month(), 28, 0, 0, 0, 0, time.UTC)
 	amexCurrentDueDate := time.Date(now.Year(), now.Month()+1, 23, 0, 0, 0, 0, time.UTC)
 	_, err = tx.Exec(`
-		INSERT INTO statements (card_id, statement_date, due_date, amount, status, notified_statement, notified_payment, created_at, updated_at)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-	`, amexCardID, amexCurrentStatementDate.Format("2006-01-02"), amexCurrentDueDate.Format("2006-01-02"), 3421.89, "pending", false, false, time.Now(), time.Now())
+		INSERT INTO statements (card_id, statement_date, due_date, amount, status, notified_statement, notified_payment, reviewed_at, scheduled_payment_date, created_at, updated_at)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+	`, amexCardID, amexCurrentStatementDate.Format("2006-01-02"), amexCurrentDueDate.Format("2006-01-02"), 3421.89, "pending", false, false, nil, nil, time.Now(), time.Now())
 	if err != nil {
 		return fmt.Errorf("failed to insert current Amex statement: %w", err)
 	}
@@ -188,13 +190,13 @@ func LoadSampleData(db *sql.DB) error {
 		return fmt.Errorf("failed to get Discover card ID: %w", err)
 	}
 
-	// Discover: Large amount pending statement
+	// Discover: Large amount pending statement - not yet scheduled
 	discoverStatementDate := time.Date(now.Year(), now.Month(), 20, 0, 0, 0, 0, time.UTC)
 	discoverDueDate := time.Date(now.Year(), now.Month()+1, 20, 0, 0, 0, 0, time.UTC)
 	_, err = tx.Exec(`
-		INSERT INTO statements (card_id, statement_date, due_date, amount, status, notified_statement, notified_payment, created_at, updated_at)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-	`, discoverCardID, discoverStatementDate.Format("2006-01-02"), discoverDueDate.Format("2006-01-02"), 4567.89, "pending", false, false, time.Now(), time.Now())
+		INSERT INTO statements (card_id, statement_date, due_date, amount, status, notified_statement, notified_payment, reviewed_at, scheduled_payment_date, created_at, updated_at)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+	`, discoverCardID, discoverStatementDate.Format("2006-01-02"), discoverDueDate.Format("2006-01-02"), 4567.89, "pending", false, false, nil, nil, time.Now(), time.Now())
 	if err != nil {
 		return fmt.Errorf("failed to insert Discover statement: %w", err)
 	}
