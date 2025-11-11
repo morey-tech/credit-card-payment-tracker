@@ -142,13 +142,13 @@ function renderCardsTable() {
     if (allCards.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="6" class="px-6 py-12 text-center text-gray-400">
-                    <div class="flex flex-col items-center space-y-3">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+                <td colspan="6" class="text-center">
+                    <div class="table-empty-state">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                         </svg>
                         <p class="text-lg">No credit cards yet</p>
-                        <p class="text-sm text-gray-500">Click "Add Card" to get started</p>
+                        <p class="text-sm text-muted">Click "Add Card" to get started</p>
                     </div>
                 </td>
             </tr>
@@ -160,23 +160,23 @@ function renderCardsTable() {
     const sortedCards = [...allCards].sort((a, b) => a.name.localeCompare(b.name));
 
     tbody.innerHTML = sortedCards.map(card => `
-        <tr class="hover:bg-gray-700/50 transition-colors">
-            <td class="px-6 py-4">
+        <tr>
+            <td>
                 <div class="font-medium text-white">${escapeHtml(card.name)}</div>
             </td>
-            <td class="px-6 py-4">
-                <div class="font-mono text-gray-300">${formatLastFour(card.last_four)}</div>
+            <td>
+                <div class="font-mono text-gray-light">${formatLastFour(card.last_four)}</div>
             </td>
-            <td class="px-6 py-4">
-                <div class="text-gray-300">${formatOrdinal(card.statement_day)}</div>
+            <td>
+                <div class="text-gray-light">${formatOrdinal(card.statement_day)}</div>
             </td>
-            <td class="px-6 py-4">
-                <div class="text-gray-300">${card.days_until_due} days</div>
+            <td>
+                <div class="text-gray-light">${card.days_until_due} days</div>
             </td>
-            <td class="px-6 py-4">
-                <div class="text-gray-300">${formatCurrency(card.credit_limit)}</div>
+            <td>
+                <div class="text-gray-light">${formatCurrency(card.credit_limit)}</div>
             </td>
-            <td class="px-6 py-4 text-right">
+            <td class="text-right">
                 <div class="table-actions">
                     <button
                         onclick="openEditCardModal(${card.id})"

@@ -150,7 +150,6 @@ async function handleSettingsFormSubmit(event) {
 
     // Disable save button while saving
     saveButton.disabled = true;
-    saveButton.classList.add('opacity-50', 'cursor-not-allowed');
 
     try {
         const settings = {
@@ -165,7 +164,6 @@ async function handleSettingsFormSubmit(event) {
     } finally {
         // Re-enable save button
         saveButton.disabled = false;
-        saveButton.classList.remove('opacity-50', 'cursor-not-allowed');
     }
 }
 

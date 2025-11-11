@@ -1115,6 +1115,14 @@ body {
     color: var(--text-muted);
 }
 
+.text-white {
+    color: var(--text-primary);
+}
+
+.text-gray-light {
+    color: #d1d5db;
+}
+
 .font-medium {
     font-weight: 500;
 }
@@ -1185,4 +1193,39 @@ body {
 
 .space-x-3 > * + * {
     margin-left: var(--spacing-lg);
+}
+
+/* Additional Typography */
+.text-sm {
+    font-size: 14px;
+}
+
+.text-lg {
+    font-size: 18px;
+}
+
+.font-mono {
+    font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Courier New', monospace;
+}
+
+/* Border Colors */
+.border-primary {
+    border-color: var(--color-primary);
+}
+
+.border-gray {
+    border-color: var(--border-color);
+}
+
+/* Status List Item */
+.status-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+}
+
+/* Table Cell Content */
+.table-cell-content {
+    color: var(--text-gray-light);
 }
