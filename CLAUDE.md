@@ -1,4 +1,4 @@
-# Wingspan Scoring - Development Guidelines
+# Development Guidelines
 
 ## Git Workflow
 
