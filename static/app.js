@@ -189,10 +189,13 @@ function renderPendingPayments(cards, statements) {
 
         const li = document.createElement('li');
         li.className = 'status-list-item';
+        li.style.display = 'flex';
+        li.style.justifyContent = 'space-between';
+        li.style.gap = '1rem';
         li.innerHTML = `
-            <span>${card.name}</span>
-            <span class="font-medium text-white">${formatCurrency(stmt.amount)}</span>
-            <span class="text-secondary">${formatDate(stmt.due_date)}</span>
+            <span style="flex: 1; min-width: 0;">${card.name}</span>
+            <span class="font-medium text-white" style="flex-shrink: 0; width: 100px; text-align: right;">${formatCurrency(stmt.amount)}</span>
+            <span class="text-secondary" style="flex-shrink: 0; width: 80px; text-align: right;">${formatDate(stmt.due_date)}</span>
         `;
         pendingPaymentsList.appendChild(li);
     });
