@@ -12,12 +12,8 @@ const pendingPaymentsList = document.getElementById('pending-payments-list');
 const pendingPlaceholder = document.getElementById('pending-placeholder');
 const actionRequiredCard = document.getElementById('action-required-card');
 
-// Card Detail Elements
-const detailCardName = document.getElementById('detail-card-name');
-const detailDueDate = document.getElementById('detail-due-date');
-const detailStatementAmount = document.getElementById('detail-statement-amount');
-const detailRecPaymentContainer = document.getElementById('detail-rec-payment-container');
-const detailRecPaymentDate = document.getElementById('detail-rec-payment-date');
+// Pending Payment Cards Container
+const pendingPaymentCardsContainer = document.getElementById('pending-payment-cards-container');
 
 // Modal Elements
 const modal = document.getElementById('statement-modal');
@@ -191,61 +187,96 @@ function renderPendingPayments(cards, statements) {
         const card = cards.find(c => c.id === stmt.card_id);
         if (!card) return;
 
-        const recommendedDate = calculateRecommendedPaymentDate(stmt.due_date);
-
         const li = document.createElement('li');
         li.className = 'status-list-item';
-
-        // Check if payment has been scheduled
-        if (stmt.scheduled_payment_date) {
-            li.innerHTML = `
-                <div style="flex: 1;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                        <span>${card.name}</span>
-                        <span class="font-medium text-white">${formatCurrency(stmt.amount)}</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; font-size: 0.875rem;">
-                        <span class="text-secondary">Due: ${formatDate(stmt.due_date)}</span>
-                        <span style="color: #10b981;">Scheduled: ${formatDate(stmt.scheduled_payment_date)}</span>
-                    </div>
-                </div>
-            `;
-        } else {
-            li.innerHTML = `
-                <div style="flex: 1;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                        <span>${card.name}</span>
-                        <span class="font-medium text-white">${formatCurrency(stmt.amount)}</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span class="text-secondary">Due: ${formatDate(stmt.due_date)}</span>
-                        <button onclick="openScheduleModal(${stmt.id}, '${card.name}', '${stmt.due_date}')" class="btn btn-primary btn-sm">
-                            Record Payment
-                        </button>
-                    </div>
-                </div>
-            `;
-        }
-
+        li.innerHTML = `
+            <span>${card.name}</span>
+            <span class="font-medium text-white">${formatCurrency(stmt.amount)}</span>
+            <span class="text-secondary">${formatDate(stmt.due_date)}</span>
+        `;
         pendingPaymentsList.appendChild(li);
     });
 }
 
-function showCardDetails(card, latestStatement) {
-    detailCardName.textContent = card.name;
+function renderPendingPaymentCards(cards, statements) {
+    pendingPaymentCardsContainer.innerHTML = '';
 
-    if (latestStatement) {
-        detailDueDate.textContent = formatDate(latestStatement.due_date);
-        detailStatementAmount.textContent = formatCurrency(latestStatement.amount);
+    const pendingStatements = statements
+        .filter(stmt => stmt.status === 'pending')
+        .sort((a, b) => new Date(a.due_date) - new Date(b.due_date));
 
-        const recommendedDate = calculateRecommendedPaymentDate(latestStatement.due_date);
-        detailRecPaymentDate.textContent = formatDate(recommendedDate);
-        detailRecPaymentContainer.classList.remove('hidden');
-    } else {
-        detailDueDate.textContent = '---';
-        detailStatementAmount.textContent = '$ --.--';
-        detailRecPaymentContainer.classList.add('hidden');
+    if (pendingStatements.length === 0) {
+        pendingPaymentCardsContainer.innerHTML = '<div style="padding: 2rem; text-align: center; color: #6b7280;">No pending payments</div>';
+        return;
     }
+
+    pendingStatements.forEach(stmt => {
+        const card = cards.find(c => c.id === stmt.card_id);
+        if (!card) return;
+
+        const recommendedDate = calculateRecommendedPaymentDate(stmt.due_date);
+
+        const section = document.createElement('section');
+        section.className = 'card-detail-section';
+
+        // Build the header with optional button
+        let headerHTML = `
+            <div class="card-detail-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <h2 class="card-detail-title">${card.name}</h2>
+        `;
+
+        if (!stmt.scheduled_payment_date) {
+            headerHTML += `
+                <button onclick="openScheduleModal(${stmt.id}, '${card.name}', '${stmt.due_date}')" class="btn btn-primary">
+                    Record Payment
+                </button>
+            `;
+        }
+
+        headerHTML += `</div>`;
+
+        // Build the detail grid
+        let gridHTML = `<div class="card-detail-grid">`;
+
+        // Statement Amount
+        gridHTML += `
+            <div class="card-detail-item">
+                <span class="card-detail-label">Statement Amount</span>
+                <span class="card-detail-value">${formatCurrency(stmt.amount)}</span>
+            </div>
+        `;
+
+        // Official Due Date
+        gridHTML += `
+            <div class="card-detail-item">
+                <span class="card-detail-label">Official Due Date</span>
+                <span class="card-detail-value">${formatDate(stmt.due_date)}</span>
+            </div>
+        `;
+
+        // Recommended Payment Date
+        gridHTML += `
+            <div class="card-detail-item highlighted">
+                <span class="card-detail-label success">Recommended Payment Date</span>
+                <span class="card-detail-value large">${formatDate(recommendedDate)}</span>
+            </div>
+        `;
+
+        // Scheduled Payment Date (if exists)
+        if (stmt.scheduled_payment_date) {
+            gridHTML += `
+                <div class="card-detail-item highlighted">
+                    <span class="card-detail-label success">Scheduled Payment Date</span>
+                    <span class="card-detail-value large" style="color: #10b981;">${formatDate(stmt.scheduled_payment_date)}</span>
+                </div>
+            `;
+        }
+
+        gridHTML += `</div>`;
+
+        section.innerHTML = headerHTML + gridHTML;
+        pendingPaymentCardsContainer.appendChild(section);
+    });
 }
 
 // Modal Functions
@@ -313,20 +344,7 @@ async function loadData() {
     renderUpcomingStatements(cards);
     renderActionRequired(cards, statements);
     renderPendingPayments(cards, statements);
-
-    // Show details for first card with a pending statement, or just first card
-    if (cards.length > 0) {
-        const firstCardWithStatement = cards.find(card => {
-            return statements.some(stmt => stmt.card_id === card.id && stmt.status === 'pending');
-        });
-
-        const cardToShow = firstCardWithStatement || cards[0];
-        const latestStatement = statements
-            .filter(stmt => stmt.card_id === cardToShow.id)
-            .sort((a, b) => new Date(b.statement_date) - new Date(a.statement_date))[0];
-
-        showCardDetails(cardToShow, latestStatement);
-    }
+    renderPendingPaymentCards(cards, statements);
 }
 
 // Schedule Payment Modal Elements
