@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi10:10.0
+FROM registry.access.redhat.com/ubi10:10.2
 
 # Add GitHub CLI repository
 RUN curl -fsSL https://cli.github.com/packages/rpm/gh-cli.repo | tee /etc/yum.repos.d/gh-cli.repo
