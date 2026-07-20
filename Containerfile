@@ -25,7 +25,7 @@ ARG VERSION=dev
 RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w -X main.version=${VERSION}" -o server cmd/server/main.go
 
 # Stage 2: Create minimal runtime image
-FROM registry.access.redhat.com/ubi10-minimal:10.0
+FROM registry.access.redhat.com/ubi10-minimal:10.2
 
 # Set working directory
 WORKDIR /app
